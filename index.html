@@ -677,6 +677,25 @@ function saveToHellcastleRating(matchData) {
       renderLeaderboard();
       updateMeta();
     })();
+    // ATTACH EVENT LISTENERS
+els.addPlayerBtn.addEventListener("click", () => addPlayerField());
+els.removePlayerBtn.addEventListener("click", () => {
+  if (els.playerList.children.length > 2) {
+    els.playerList.lastElementChild.remove();
+    refreshPlayerPlaceholders();
+  }
+});
+els.startGameBtn.addEventListener("click", startGame);
+
+// INITIALIZE PAGE ON LOAD
+function init() {
+  els.matchDate.value = todayStr();
+  // Create default 2 player slots
+  addPlayerField("Player 1");
+  addPlayerField("Player 2");
+}
+
+init();
   </script>
 </body>
 </html>
