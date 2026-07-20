@@ -160,6 +160,7 @@
   </div>
 
   <script>
+    const HELLCASTLE_API_URL = "https://script.google.com/macros/s/AKfycbz1QN9HNrXhrusTMpSxsaz8MELqYUs7fX4pcIYhQoSFblJp_Ry7ZJlc92X2VI7UpSt29g/exec";
     const STORAGE_KEYS = { matches: "countup_matches_multiv1", leaderboard: "countup_leaderboard_multiv1" };
     const MODE_ROUNDS = { "Count Up": 8, "Count Up15": 15, "Quickdraw": 3 };
 
@@ -427,6 +428,17 @@
       renderLeaderboard();
     }
 
+    function saveToHellcastleRating(payload) {
+  fetch(HELLCASTLE_API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(data => console.log("Saved to Hellcastle Rating:", data))
+  .catch(err => console.error("Error saving to Hellcastle Rating:", err));
+}
+
     function renderScoreboard(){
       const rounds = state.totalRounds || 0;
       let headHtml = `<tr><th>Player</th>`;
@@ -488,25 +500,24 @@
       }
     }
 
-    function saveCompletedMatch(){
-      const matches = getStorage(STORAGE_KEYS.matches, []);
-      const leaderboard = getStorage(STORAGE_KEYS.leaderboard, {});
-      const match = {
-        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-        date: state.selectedDate || todayStr(),
-        mode: state.mode,
-        rounds: state.totalRounds,
-        players: state.players.slice(),
-        totals: state.totals.slice(),
-        roundScores: deepClone(state.roundScores),
-        first9: state.dartScores.map(ds => calcFirst9Average(ds)),
-        ppr: state.totals.map(t => calcPointsPerRound(t, state.totalRounds)),
-        winner: (() => {
-          const maxScore = Math.max(...state.totals);
-          const winners = state.players.filter((_,i)=>state.totals[i]===maxScore);
-          return winners.length===1 ? winners[0] : "Tie";
-        })()
-      };
+    function saveCompletedMatch() {
+  if (state.finalSaved) return;
+  state.finalSaved = true;
+
+  const maxScore = Math.max(...state.totals);
+  const winners = state.players.filter((_, i) => state.totals[i] === maxScore);
+
+  // Send match results to Google Sheets backend
+  saveToHellcastleRating({
+    date: state.selectedDate || todayStr(),
+    mode: state.mode,
+    players: state.players,
+    scores: state.totals,
+    winner: winners.join(", ")
+  });
+
+  // Existing local storage save logic ...
+}
 
       matches.unshift(match);
       setStorage(STORAGE_KEYS.matches, matches);
