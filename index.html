@@ -538,27 +538,37 @@
       }
     }
 
-    function saveCompletedMatch(){
-      const matches = getStorage(STORAGE_KEYS.matches, []);
-      const leaderboard = getStorage(STORAGE_KEYS.leaderboard, {});
+    const HELLCASTLE_API_URL = "https://script.google.com/macros/s/AKfycbxF6pIKgIafcgYUqiLTtaaVAHb8reZIHDR8MnLkd5Y_Zj6dfPbZ2xY5JJvwhN3pQ8huVA/exec";
 
-      const match = {
-        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-        date: state.selectedDate || todayStr(),
-        mode: state.mode,
-        rounds: state.totalRounds,
-        players: state.players.slice(),
-        totals: state.totals.slice(),
-        roundScores: deepClone(state.roundScores),
-        first9: state.dartScores.map(ds => calcFirst9Average(ds)),
-        ppr: state.totals.map(t => calcPointsPerRound(t, state.totalRounds)),
-        winner: (() => {
-          const maxScore = Math.max(...state.totals);
-          const winners = state.players.filter((_,i)=>state.totals[i]===maxScore);
-          return winners.length===1 ? winners[0] : "Tie";
-        })()
-      };
+function saveToHellcastleRating(matchData) {
+  fetch(HELLCASTLE_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
+    body: JSON.stringify(matchData)
+  })
+  .then(res => res.json())
+  .then(res => console.log("Hellcastle Rating result saved:", res))
+  .catch(err => console.error("Error saving match:", err));
+}
 
+    function saveCompletedMatch() {
+  // Existing match saving logic ...
+  
+  const maxScore = Math.max(...state.totals);
+  const winners = state.players.filter((_, i) => state.totals[i] === maxScore);
+
+  const payload = {
+    date: state.selectedDate || todayStr(),
+    mode: state.mode,
+    players: state.players,
+    scores: state.totals,
+    winner: winners.join(", ")
+  };
+
+  saveToHellcastleRating(payload);
+}
       matches.unshift(match);
       setStorage(STORAGE_KEYS.matches, matches);
 
