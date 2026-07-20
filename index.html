@@ -163,6 +163,12 @@
     const STORAGE_KEYS = { matches: "countup_matches_multiv1", leaderboard: "countup_leaderboard_multiv1" };
     const MODE_ROUNDS = { "Count Up": 8, "Count Up15": 15, "Quickdraw": 3 };
 
+    // Hellcastle-Rating cloud backend (same Google Apps Script used by Herbenero/Hellcastle-Rating).
+    // Completed CountUp matches are synced here so they appear in the Hellcastle-Rating leaderboard
+    // and history pages. No extra auth is required – the endpoint is publicly writable.
+    // POST body format: { date, gameName, winCondition, results: [{name, score}], ...extraFields }
+    const HELLCASTLE_RATING_API = "https://script.google.com/macros/s/AKfycbz1QN9HNrXhrusTMpSxsaz8MELqYUs7fX4pcIYhQoSFblJp_Ry7ZJlc92X2VI7UpSt29g/exec";
+
     const state = {
       players: [],
       mode: "Count Up",
@@ -488,6 +494,39 @@
       }
     }
 
+    // Sends a completed match to the Hellcastle-Rating Google Apps Script backend.
+    // The payload mirrors the format Hellcastle-Rating's own "Record Match" form uses,
+    // with additional CountUp-specific fields (rounds, winner, roundScores, first9, ppr)
+    // appended so the full dart-game context is preserved in the sheet.
+    // This is fire-and-forget: failures are logged to the console but never block gameplay.
+    async function saveToHellcastleRating(match) {
+      const payload = {
+        date: match.date,
+        gameName: match.mode,
+        winCondition: "high",
+        results: match.players.map((name, i) => ({ name, score: match.totals[i] })),
+        rounds: match.rounds,
+        winner: match.winner,
+        roundScores: match.roundScores,
+        first9: match.first9,
+        ppr: match.ppr
+      };
+      try {
+        const res = await fetch(HELLCASTLE_RATING_API, {
+          method: "POST",
+          mode: "cors",
+          redirect: "follow",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+          console.warn("CountUp: Hellcastle-Rating sync returned HTTP", res.status);
+        }
+      } catch (err) {
+        console.warn("CountUp: could not sync match to Hellcastle-Rating:", err);
+      }
+    }
+
     function saveCompletedMatch(){
       const matches = getStorage(STORAGE_KEYS.matches, []);
       const leaderboard = getStorage(STORAGE_KEYS.leaderboard, {});
@@ -510,6 +549,9 @@
 
       matches.unshift(match);
       setStorage(STORAGE_KEYS.matches, matches);
+
+      // Sync to Hellcastle-Rating cloud backend (fire-and-forget)
+      saveToHellcastleRating(match).catch(() => {});
 
       const playersTotals = state.players.map((name,i)=>({name,total:state.totals[i]}));
       playersTotals.forEach(p => { if(!leaderboard[p.name]) leaderboard[p.name] = basePlayerRecord(p.name); });
