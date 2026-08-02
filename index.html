@@ -115,7 +115,7 @@
       border: 1px solid #eee;
       margin-bottom: 8px;
     }
-    .hidden { display: none; }
+    .hidden { display: none !important; }
     @media (max-width: 980px) {
       .game-grid { grid-template-columns: 1fr; }
       .meta-strip { grid-template-columns: repeat(3, 1fr); }
@@ -149,7 +149,14 @@
 
       <div class="player-list" id="playerList"></div>
 
-      <div style="display:flex;gap:12px;margin-top:10px;align-items:center">
+      <div style="display:flex;gap:12px;margin-top:10px;align-items:center;flex-wrap:wrap">
+        <div>
+          <label style="font-size:.85rem;color:var(--muted);display:block">Board Type</label>
+          <select id="boardType" style="padding:8px;border-radius:8px;border:1px solid #ddd">
+            <option value="basic">Basic Board</option>
+            <option value="quad">Quad Board</option>
+          </select>
+        </div>
         <div>
           <label style="font-size:.85rem;color:var(--muted);display:block">Game Mode</label>
           <select id="gameMode" style="padding:8px;border-radius:8px;border:1px solid #ddd">
@@ -183,6 +190,7 @@
             <button class="mult-btn active" data-mult="1">Single</button>
             <button class="mult-btn" data-mult="2">Double</button>
             <button class="mult-btn" data-mult="3">Triple</button>
+            <button class="mult-btn hidden" id="quadBtn" data-mult="4">Quad</button>
             <button id="missBtn" class="mult-btn btn-warn">Miss</button>
           </div>
           <div class="targets panel" id="targetGrid" style="margin-top:12px"></div>
@@ -246,6 +254,7 @@
     const state = {
       players: [],
       mode: "Count Up",
+      boardType: "basic",
       totalRounds: 8,
       currentPlayer: 0,
       currentRound: 1,
@@ -268,9 +277,11 @@
       startGameBtn: document.getElementById("startGameBtn"),
       matchDate: document.getElementById("matchDate"),
       gameMode: document.getElementById("gameMode"),
+      boardType: document.getElementById("boardType"),
+      quadBtn: document.getElementById("quadBtn"),
       targetGrid: document.getElementById("targetGrid"),
       multRow: document.getElementById("multRow"),
-      multButtons: () => Array.from(document.querySelectorAll(".mult-btn")),
+      multButtons: () => Array.from(document.querySelectorAll(".mult-btn:not(.btn-warn)")),
       missBtn: document.getElementById("missBtn"),
       undoBtn: document.getElementById("undoBtn"),
       endTurnBtn: document.getElementById("endTurnBtn"),
@@ -377,6 +388,14 @@
       state.dartScores = state.players.map(() => Array.from({ length: state.totalRounds }, () => []));
       state.historyStack = [];
       state.finalSaved = false;
+
+      // Show/hide Quad button based on selected board type
+      if (state.boardType === "quad") {
+        els.quadBtn.classList.remove("hidden");
+      } else {
+        els.quadBtn.classList.add("hidden");
+      }
+
       setAnnouncement(`${state.players[0]} to throw first.`);
       updateMeta();
       renderScoreboard();
@@ -391,6 +410,7 @@
         return;
       }
       state.players = names.slice();
+      state.boardType = els.boardType.value;
       state.mode = els.gameMode.value;
       state.selectedDate = els.matchDate.value || todayStr();
       buildTargetButtons();
@@ -401,10 +421,10 @@
 
     function updateMeta(){
       els.currentPlayer.textContent = state.players[state.currentPlayer] ?? "—";
-      els.modeLabel.textContent = state.mode;
+      els.modeLabel.textContent = `${state.mode}${state.boardType === "quad" ? " (Quad)" : ""}`;
       els.roundLabel.textContent = `${Math.min(state.currentRound, state.totalRounds)} / ${state.totalRounds}`;
       els.dartLabel.textContent = `${state.currentDart} / 3`;
-      els.multLabel.textContent = state.multiplier === 1 ? "Single" : state.multiplier === 2 ? "Double" : "Triple";
+      els.multLabel.textContent = state.multiplier === 1 ? "Single" : state.multiplier === 2 ? "Double" : state.multiplier === 3 ? "Triple" : "Quad";
       els.multButtons().forEach(b => b.classList.toggle("active", Number(b.dataset.mult) === state.multiplier));
     }
 
@@ -417,6 +437,7 @@
       state.historyStack.push(deepClone({
         players: state.players,
         mode: state.mode,
+        boardType: state.boardType,
         totalRounds: state.totalRounds,
         currentPlayer: state.currentPlayer,
         currentRound: state.currentRound,
@@ -488,6 +509,13 @@
       if (!state.historyStack.length) return;
       const prev = state.historyStack.pop();
       Object.assign(state, deepClone(prev));
+      
+      if (state.boardType === "quad") {
+        els.quadBtn.classList.remove("hidden");
+      } else {
+        els.quadBtn.classList.add("hidden");
+      }
+
       updateMeta();
       renderScoreboard();
       renderFinalBoard();
@@ -509,7 +537,7 @@
         summary = winners.length===1 ? `${winners[0]} wins ${maxScore}.` : `Tie at ${maxScore} between ${winners.join(", ")}.`;
       }
       
-      els.finalSummary.textContent = `${state.mode} • ${summary}`;
+      els.finalSummary.textContent = `${state.mode}${state.boardType === "quad" ? " (Quad Board)" : ""} • ${summary}`;
       setAnnouncement(summary, "good");
       if (!state.finalSaved){
         saveCompletedMatch();
@@ -575,7 +603,7 @@
       playersTotals.forEach(p => {
         if(!leaderboard[p.name]) leaderboard[p.name] = basePlayerRecord(p.name);
       });
-      if (playersTotals.length < 2) return; // Skip Elo adjustments for single player matches
+      if (playersTotals.length < 2) return;
       
       const k = 24;
       for (let i=0;i<playersTotals.length;i++){
@@ -597,7 +625,7 @@
       const match = {
         id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
         date: state.selectedDate || todayStr(),
-        mode: state.mode,
+        mode: `${state.mode}${state.boardType === "quad" ? " (Quad)" : ""}`,
         rounds: state.totalRounds,
         players: state.players.slice(),
         totals: state.totals.slice(),
