@@ -281,7 +281,7 @@
       quadBtn: document.getElementById("quadBtn"),
       targetGrid: document.getElementById("targetGrid"),
       multRow: document.getElementById("multRow"),
-      multButtons: () => Array.from(document.querySelectorAll(".mult-btn:not(.btn-warn)")),
+      multButtons: () => Array.from(document.querySelectorAll(".mult-btn[data-mult]")),
       missBtn: document.getElementById("missBtn"),
       undoBtn: document.getElementById("undoBtn"),
       endTurnBtn: document.getElementById("endTurnBtn"),
@@ -389,7 +389,6 @@
       state.historyStack = [];
       state.finalSaved = false;
 
-      // Show/hide Quad button based on selected board type
       if (state.boardType === "quad") {
         els.quadBtn.classList.remove("hidden");
       } else {
