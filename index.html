@@ -240,6 +240,7 @@
   </div>
 
   <script>
+    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxr_xINWlOWgjV2AhJeCa2ZyQh73FDS1iqKGMXOKdLrlrN2TV3ITWrcUyNfEv4zw9HEhQ/exec";
     const STORAGE_KEYS = {
       matches: "countup_matches_multiv1",
       leaderboard: "countup_leaderboard_multiv1"
@@ -521,31 +522,75 @@
       setAnnouncement("Last action undone.");
     }
 
-    function finishGame(){
-      state.gameOver = true;
-      renderScoreboard();
-      renderFinalBoard();
-      els.finalPanel.classList.remove("hidden");
-      const maxScore = Math.max(...state.totals);
-      const winners = state.players.filter((_,i)=>state.totals[i] === maxScore);
-      
-      let summary = "";
-      if (state.players.length === 1) {
-        summary = `${state.players[0]} finished with a total score of ${maxScore}.`;
-      } else {
-        summary = winners.length===1 ? `${winners[0]} wins ${maxScore}.` : `Tie at ${maxScore} between ${winners.join(", ")}.`;
-      }
-      
-      els.finalSummary.textContent = `${state.mode}${state.boardType === "quad" ? " (Quad Board)" : ""} • ${summary}`;
-      setAnnouncement(summary, "good");
-      if (!state.finalSaved){
-        saveCompletedMatch();
-        state.finalSaved = true;
-      }
-      renderHistory();
-      renderLeaderboard();
-    }
+    function finishGame() {
+  state.gameOver = true;
+  renderScoreboard();
+  renderFinalBoard();
+  els.finalPanel.classList.remove("hidden");
 
+  const maxScore = Math.max(...state.totals);
+  const winners = state.players.filter((_, i) => state.totals[i] === maxScore);
+  let summary = "";
+
+  if (state.players.length === 1) {
+    summary = `${state.players[0]} finished with a total score of ${maxScore}.`;
+  } else {
+    summary = winners.length === 1 
+      ? `${winners[0]} wins ${maxScore}.` 
+      : `Tie at ${maxScore} between ${winners.join(", ")}.`;
+  }
+
+  els.finalSummary.textContent = `${state.mode}${state.boardType === "quad" ? " (Quad Board)" : ""} • ${summary}`;
+  setAnnouncement(summary, "good");
+
+  // Save locally and post to Hellcastle Rating endpoint
+  if (!state.finalSaved) {
+    const savedMatch = saveCompletedMatch(); 
+    state.finalSaved = true;
+
+    if (savedMatch) {
+      sendResultsToHellcastleRating(savedMatch);
+    }
+  }
+
+  renderHistory();
+  renderLeaderboard();
+}
+async function sendResultsToHellcastleRating(matchData) {
+  if (!SHEET_API_URL || SHEET_API_URL.includes("YOUR_HELLCASTLE_RATING")) {
+    console.warn("Hellcastle Rating API URL not configured.");
+    return;
+  }
+
+  // Format payload expected by Hellcastle-Rating endpoint
+  const payload = {
+    game: matchData.mode,               // e.g., "Count Up" or "Count Up (Quad)"
+    date: matchData.date,
+    players: matchData.players.map((name, idx) => ({
+      name: name,
+      score: matchData.totals[idx],
+      ppr: matchData.ppr[idx],
+      first9: matchData.first9[idx]
+    })),
+    winner: matchData.winner
+  };
+
+  try {
+    const response = await fetch(SHEET_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" }, // Avoids CORS preflight issues with Apps Script
+      body: JSON.stringify(payload)
+    });
+
+    if (response.ok) {
+      console.log("Results successfully sent to Hellcastle Rating.");
+    } else {
+      console.error("Failed to send results to Hellcastle Rating:", response.statusText);
+    }
+  } catch (err) {
+    console.error("Error sending results to Hellcastle Rating:", err);
+  }
+}
     function renderScoreboard(){
       const rounds = state.totalRounds || 0;
       let headHtml = `<tr><th>Player</th>`;
@@ -618,29 +663,35 @@
       }
     }
 
-    function saveCompletedMatch(){
-      const matches = getStorage(STORAGE_KEYS.matches, []);
-      const leaderboard = getStorage(STORAGE_KEYS.leaderboard, {});
-      const match = {
-        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-        date: state.selectedDate || todayStr(),
-        mode: `${state.mode}${state.boardType === "quad" ? " (Quad)" : ""}`,
-        rounds: state.totalRounds,
-        players: state.players.slice(),
-        totals: state.totals.slice(),
-        roundScores: deepClone(state.roundScores),
-        first9: state.dartScores.map(ds => calcFirst9Average(ds)),
-        ppr: state.totals.map(t => calcPointsPerRound(t, state.totalRounds)),
-        winner: (() => {
-          if (state.players.length === 1) return state.players[0];
-          const maxScore = Math.max(...state.totals);
-          const winners = state.players.filter((_,i)=>state.totals[i]===maxScore);
-          return winners.length===1 ? winners[0] : "Tie";
-        })()
-      };
-      matches.unshift(match);
-      setStorage(STORAGE_KEYS.matches, matches);
+    function saveCompletedMatch() {
+  const matches = getStorage(STORAGE_KEYS.matches, []);
+  const leaderboard = getStorage(STORAGE_KEYS.leaderboard, {});
 
+  const match = {
+    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+    date: state.selectedDate || todayStr(),
+    mode: `${state.mode}${state.boardType === "quad" ? " (Quad)" : ""}`,
+    rounds: state.totalRounds,
+    players: state.players.slice(),
+    totals: state.totals.slice(),
+    roundScores: deepClone(state.roundScores),
+    first9: state.dartScores.map(ds => calcFirst9Average(ds)),
+    ppr: state.totals.map(t => calcPointsPerRound(t, state.totalRounds)),
+    winner: (() => {
+      if (state.players.length === 1) return state.players[0];
+      const maxScore = Math.max(...state.totals);
+      const winners = state.players.filter((_, i) => state.totals[i] === maxScore);
+      return winners.length === 1 ? winners[0] : "Tie";
+    })()
+  };
+
+  matches.unshift(match);
+  setStorage(STORAGE_KEYS.matches, matches);
+
+  // ... (Existing leaderboard/ELO update logic)
+
+  return match;
+}
       const playersTotals = state.players.map((name,i)=>({name,total:state.totals[i]}));
       playersTotals.forEach(p => {
         if(!leaderboard[p.name]) leaderboard[p.name] = basePlayerRecord(p.name);
