@@ -210,7 +210,24 @@
       </table>
     </section>
 
-    
+    <!-- Overall Leaderboard & Next Event Modal -->
+    <div id="eventSummaryModal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Event Complete!</h2>
+        <h3 style="color:var(--muted);margin-top:0">Overall Leaderboard</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Player</th>
+              <th>Total Score</th>
+            </tr>
+          </thead>
+          <tbody id="overallLeaderboardBody"></tbody>
+        </table>
+        <button id="nextEventBtn">NEXT EVENT</button>
+      </div>
+    </div>
   </div>
 
   <script>
