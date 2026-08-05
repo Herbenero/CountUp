@@ -231,7 +231,6 @@
   </div>
 
   <script>
-    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycby30NBO4KCHCo6EtGB-wYB8diDF2xtQQuatCJOUWrEab-sSE08EhflxTebKzVYuEg8fCQ/exec";
     const STORAGE_KEYS = { matches: "countup_matches_multiv1", leaderboard: "countup_leaderboard_multiv1" };
     const MODE_ROUNDS = { "Count Up": 8, "Count Up15": 15, "Quickdraw": 3 };
 
@@ -553,11 +552,8 @@
       setAnnouncement(summary, "good");
 
       if (!state.finalSaved) {
-        const savedMatch = saveCompletedMatch();
+        saveCompletedMatch();
         state.finalSaved = true;
-        if (savedMatch) {
-          sendResultsToHellcastleRating(savedMatch);
-        }
       }
 
       renderHistory();
@@ -588,42 +584,6 @@
       els.eventSummaryModal.classList.remove("hidden");
     }
 
-    async function sendResultsToHellcastleRating(matchData) {
-  if (!SHEET_API_URL || SHEET_API_URL.includes("YOUR_HELLCASTLE_RATING")) {
-    console.warn("Hellcastle Rating API URL not configured.");
-    return;
-  }
-
-  // Format payload with gameName to match Apps Script expectations
-  const payload = {
-    gameName: matchData.mode,           // e.g., "Count Up", "Count Up15", or "Quickdraw"
-    gameType: matchData.mode,           // Backup parameter
-    date: matchData.date,
-    players: matchData.players.map((name, idx) => ({
-      name: name,
-      score: matchData.totals[idx],
-      ppr: matchData.ppr[idx],
-      first9: matchData.first9[idx]
-    })),
-    winner: matchData.winner
-  };
-
-  try {
-    const response = await fetch(SHEET_API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
-    });
-
-    if (response.ok) {
-      console.log("Results successfully sent to Hellcastle Rating.");
-    } else {
-      console.error("Failed to send results to Hellcastle Rating:", response.statusText);
-    }
-  } catch (err) {
-    console.error("Error sending results to Hellcastle Rating:", err);
-  }
-}
     function saveCompletedMatch() {
       const matches = getStorage(STORAGE_KEYS.matches, []);
       const match = {
