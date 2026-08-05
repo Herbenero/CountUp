@@ -25,97 +25,73 @@
       padding: 18px;
     }
     .container { max-width: 1200px; margin: 0 auto; }
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
     h1 { margin: 0; font-size: 1.6rem; }
     .controls-row { display: flex; gap: 8px; flex-wrap: wrap; }
-    .panel {
-      background: var(--paper);
-      padding: 14px;
-      border-radius: var(--radius);
-      box-shadow: 0 6px 18px rgba(0,0,0,.06);
-    }
+    .panel { background: var(--paper); padding: 14px; border-radius: var(--radius); box-shadow: 0 6px 18px rgba(0,0,0,.06); }
     .player-list { display: grid; gap: 8px; margin-top: 8px; }
     .player-row { display: flex; gap: 8px; }
-    input[type="text"] {
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      flex: 1;
-    }
-    button {
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 0;
-      background: #eee;
-      cursor: pointer;
-    }
+    input[type="text"] { padding: 8px; border-radius: 8px; border: 1px solid #ddd; flex: 1; }
+    button { padding: 8px 12px; border-radius: 8px; border: 0; background: #eee; cursor: pointer; }
     .btn-primary { background: linear-gradient(135deg, var(--accent), #d96f47); color: white; }
     .btn-alt { background: #1e5b6d; color: white; }
     .btn-warn { background: linear-gradient(135deg, #8f2d2d, #b34343); color: white; }
-    .game-grid {
-      display: grid;
-      grid-template-columns: 1fr 420px;
-      gap: 16px;
-      margin-top: 18px;
-    }
+    .game-grid { display: grid; grid-template-columns: 1fr 420px; gap: 16px; margin-top: 18px; }
     .meta-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 12px; }
-    .meta {
-      background: #fff;
-      padding: 10px;
-      border-radius: 8px;
-      text-align: center;
-      border: 1px solid #eee;
-    }
+    .meta { background: #fff; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #eee; }
     .meta .k { font-size: .75rem; color: var(--muted); text-transform: uppercase; }
     .meta .v { font-weight: 800; font-size: 1.25rem; }
     .mult-row { display: flex; gap: 8px; margin-bottom: 12px; }
-    .mult-btn {
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      background: #fff;
-      cursor: pointer;
-    }
+    .mult-btn { padding: 10px; border-radius: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
     .mult-btn.active { outline: 3px solid rgba(30, 91, 109, .12); }
     .targets { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-    .target-btn {
-      padding: 14px;
-      border-radius: 8px;
-      background: #fff;
-      border: 1px solid #ddd;
-      font-weight: 800;
-      cursor: pointer;
-    }
+    .target-btn { padding: 14px; border-radius: 8px; background: #fff; border: 1px solid #ddd; font-weight: 800; cursor: pointer; }
     .target-btn.bull { background: linear-gradient(180deg, #fff6c9, #f7c65f); color: #5a3a10; }
     .actions { display: flex; gap: 8px; margin-top: 12px; }
-    .announce {
-      margin-top: 12px;
-      padding: 10px;
-      border-radius: 8px;
-      background: #fff;
-      border: 1px solid #eee;
-      min-height: 44px;
-    }
+    .announce { margin-top: 12px; padding: 10px; border-radius: 8px; background: #fff; border: 1px solid #eee; min-height: 44px; }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; }
     th, td { padding: 8px; border: 1px solid #eee; text-align: center; }
     th { background: #fafafa; font-size: .8rem; color: var(--muted); }
     td.total { font-weight: 900; }
     .side-panel { display: flex; flex-direction: column; gap: 12px; }
     .list { max-height: 420px; overflow: auto; padding-right: 6px; }
-    .history-item, .leader-item {
-      padding: 8px;
-      border-radius: 8px;
-      background: #fff;
-      border: 1px solid #eee;
-      margin-bottom: 8px;
-    }
+    .history-item, .leader-item { padding: 8px; border-radius: 8px; background: #fff; border: 1px solid #eee; margin-bottom: 8px; }
     .hidden { display: none !important; }
+
+    /* Event Summary Modal Styles */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.65);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: var(--paper);
+      padding: 24px;
+      border-radius: var(--radius);
+      text-align: center;
+      min-width: 320px;
+      max-width: 90%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    #next-event-btn {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-weight: bold;
+      background: linear-gradient(135deg, var(--accent), #d96f47);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
     @media (max-width: 980px) {
       .game-grid { grid-template-columns: 1fr; }
       .meta-strip { grid-template-columns: repeat(3, 1fr); }
@@ -146,9 +122,7 @@
           <button id="removePlayerBtn" class="btn">Remove</button>
         </div>
       </div>
-
       <div class="player-list" id="playerList"></div>
-
       <div style="display:flex;gap:12px;margin-top:10px;align-items:center;flex-wrap:wrap">
         <div>
           <label style="font-size:.85rem;color:var(--muted);display:block">Board Type</label>
@@ -216,12 +190,10 @@
             </table>
           </div>
         </section>
-
         <section class="panel" id="historyPanel">
           <strong>Match History</strong>
           <div class="list" id="historyList"></div>
         </section>
-
         <section class="panel hidden" id="leaderboardPanel">
           <strong>Leaderboard</strong>
           <div class="list" id="leaderboardList"></div>
@@ -237,20 +209,31 @@
         <tbody id="finalBody"></tbody>
       </table>
     </section>
+
+    <!-- Overall Leaderboard & Next Event Modal -->
+    <div id="eventSummaryModal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Event Complete!</h2>
+        <h3 style="color:var(--muted);margin-top:0">Overall Leaderboard</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Player</th>
+              <th>Total Score</th>
+            </tr>
+          </thead>
+          <tbody id="overallLeaderboardBody"></tbody>
+        </table>
+        <button id="nextEventBtn">NEXT EVENT</button>
+      </div>
+    </div>
   </div>
 
   <script>
     const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxr_xINWlOWgjV2AhJeCa2ZyQh73FDS1iqKGMXOKdLrlrN2TV3ITWrcUyNfEv4zw9HEhQ/exec";
-    const STORAGE_KEYS = {
-      matches: "countup_matches_multiv1",
-      leaderboard: "countup_leaderboard_multiv1"
-    };
-
-    const MODE_ROUNDS = {
-      "Count Up": 8,
-      "Count Up15": 15,
-      "Quickdraw": 3
-    };
+    const STORAGE_KEYS = { matches: "countup_matches_multiv1", leaderboard: "countup_leaderboard_multiv1" };
+    const MODE_ROUNDS = { "Count Up": 8, "Count Up15": 15, "Quickdraw": 3 };
 
     const state = {
       players: [],
@@ -305,35 +288,48 @@
       historyPanel: document.getElementById("historyPanel"),
       leaderboardToggle: document.getElementById("leaderboardToggle"),
       historyToggle: document.getElementById("historyToggle"),
-      setupPanel: document.getElementById("setupPanel")
+      setupPanel: document.getElementById("setupPanel"),
+      eventSummaryModal: document.getElementById("eventSummaryModal"),
+      overallLeaderboardBody: document.getElementById("overallLeaderboardBody"),
+      nextEventBtn: document.getElementById("nextEventBtn")
     };
 
-    function todayStr(){
+    function todayStr() {
       const d = new Date();
       const tz = d.getTimezoneOffset();
-      const local = new Date(d.getTime() - tz*60000);
-      return local.toISOString().slice(0,10);
+      const local = new Date(d.getTime() - tz * 60000);
+      return local.toISOString().slice(0, 10);
     }
 
-    function getStorage(key, fallback){
-      try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
-      catch(e){ return fallback; }
+    function getStorage(key, fallback) {
+      try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch (e) { return fallback; }
     }
 
-    function setStorage(key, value){
+    function setStorage(key, value) {
       localStorage.setItem(key, JSON.stringify(value));
     }
 
-    function deepClone(obj){
+    function deepClone(obj) {
       return JSON.parse(JSON.stringify(obj));
     }
 
-    function addPlayerField(name = ""){
+    function calcPointsPerRound(total, rounds) {
+      return rounds > 0 ? (total / rounds).toFixed(2) : "0.00";
+    }
+
+    function calcFirst9Average(darts) {
+      const flatDarts = (darts || []).flat().slice(0, 9);
+      if (!flatDarts.length) return "0.00";
+      const sum = flatDarts.reduce((a, b) => a + b, 0);
+      return (sum / (flatDarts.length / 3)).toFixed(2);
+    }
+
+    function addPlayerField(name = "") {
       const index = els.playerList.children.length + 1;
       const row = document.createElement("div");
       row.className = "player-row";
       row.innerHTML = `
-        <input type="text" placeholder="Player ${index} name" value="${name.replaceAll('"','&quot;')}" />
+        <input type="text" placeholder="Player ${index} name" value="${name.replaceAll('"', '&quot;')}" />
         <button class="btn remove" title="Remove">✕</button>
       `;
       row.querySelector(".remove").addEventListener("click", () => {
@@ -345,22 +341,24 @@
       refreshPlayerPlaceholders();
     }
 
-    function refreshPlayerPlaceholders(){
+    function refreshPlayerPlaceholders() {
       Array.from(els.playerList.children).forEach((row, idx) => {
-        row.querySelector("input").placeholder = `Player ${idx+1} name`;
+        row.querySelector("input").placeholder = `Player ${idx + 1} name`;
       });
       Array.from(els.playerList.querySelectorAll(".remove")).forEach(btn => {
         btn.style.visibility = els.playerList.children.length <= 1 ? "hidden" : "visible";
       });
     }
 
-    function getPlayerNamesFromInputs(){
-      return Array.from(els.playerList.querySelectorAll("input")).map(i => i.value.trim()).filter(Boolean);
+    function getPlayerNamesFromInputs() {
+      return Array.from(els.playerList.querySelectorAll("input"))
+        .map(i => i.value.trim())
+        .filter(Boolean);
     }
 
-    function buildTargetButtons(){
+    function buildTargetButtons() {
       els.targetGrid.innerHTML = "";
-      for(let i=1;i<=20;i++){
+      for (let i = 1; i <= 20; i++) {
         const btn = document.createElement("button");
         btn.className = "target-btn";
         btn.textContent = i;
@@ -376,7 +374,7 @@
       els.targetGrid.appendChild(bull);
     }
 
-    function resetStateForGame(){
+    function resetStateForGame() {
       state.totalRounds = MODE_ROUNDS[state.mode] ?? 8;
       state.currentPlayer = 0;
       state.currentRound = 1;
@@ -401,11 +399,12 @@
       renderScoreboard();
       renderFinalBoard();
       els.finalPanel.classList.add("hidden");
+      els.eventSummaryModal.classList.add("hidden");
     }
 
-    function startGame(){
+    function startGame() {
       const names = getPlayerNamesFromInputs();
-      if (names.length < 1){
+      if (names.length < 1) {
         setAnnouncement("Enter at least one player name to start.", "warn");
         return;
       }
@@ -416,10 +415,10 @@
       buildTargetButtons();
       resetStateForGame();
       els.setupPanel.classList.add("hidden");
-      document.getElementById("gamePanel").scrollIntoView({ behavior:"smooth" });
+      document.getElementById("gamePanel").scrollIntoView({ behavior: "smooth" });
     }
 
-    function updateMeta(){
+    function updateMeta() {
       els.currentPlayer.textContent = state.players[state.currentPlayer] ?? "—";
       els.modeLabel.textContent = `${state.mode}${state.boardType === "quad" ? " (Quad)" : ""}`;
       els.roundLabel.textContent = `${Math.min(state.currentRound, state.totalRounds)} / ${state.totalRounds}`;
@@ -428,12 +427,12 @@
       els.multButtons().forEach(b => b.classList.toggle("active", Number(b.dataset.mult) === state.multiplier));
     }
 
-    function setAnnouncement(msg, type=""){
+    function setAnnouncement(msg, type = "") {
       els.announcement.textContent = msg;
       els.announcement.className = type ? `announce ${type}` : "announce";
     }
 
-    function saveSnapshot(){
+    function saveSnapshot() {
       state.historyStack.push(deepClone({
         players: state.players,
         mode: state.mode,
@@ -454,62 +453,72 @@
       if (state.historyStack.length > 200) state.historyStack.shift();
     }
 
-    function scoreValue(target, mult){
+    function scoreValue(target, mult) {
       if (target === "BULL") return 50;
       return Number(target) * mult;
     }
 
-    function recordThrow(target){
+    function recordThrow(target) {
       if (!state.gameStarted || state.gameOver) return;
       saveSnapshot();
       const p = state.currentPlayer;
       const rIndex = state.currentRound - 1;
       const points = scoreValue(target, state.multiplier);
+
       state.dartScores[p][rIndex] = state.dartScores[p][rIndex] || [];
       state.dartScores[p][rIndex].push(points);
       state.roundScores[p][rIndex] = (state.roundScores[p][rIndex] || 0) + points;
       state.totals[p] = (state.totals[p] || 0) + points;
+
       setAnnouncement(`${state.players[p]} scores ${points} (${target} x ${state.multiplier}).`, "good");
       advanceDart();
     }
 
-    function recordMiss(){
+    function recordMiss() {
       if (!state.gameStarted || state.gameOver) return;
       saveSnapshot();
       const p = state.currentPlayer;
       const rIndex = state.currentRound - 1;
+
       state.dartScores[p][rIndex] = state.dartScores[p][rIndex] || [];
       state.dartScores[p][rIndex].push(0);
+
       setAnnouncement(`${state.players[p]} misses.`, "warn");
       advanceDart();
     }
 
-    function advanceDart(){
-      if (state.currentDart >= 3) endTurn();
-      else {
+    function advanceDart() {
+      if (state.currentDart >= 3) {
+        endTurn();
+      } else {
         state.currentDart += 1;
         updateMeta();
         renderScoreboard();
       }
     }
 
-    function endTurn(){
+    function endTurn() {
       if (!state.gameStarted || state.gameOver) return;
       state.currentPlayer = (state.currentPlayer + 1) % state.players.length;
       if (state.currentPlayer === 0) state.currentRound += 1;
       state.currentDart = 1;
       state.multiplier = 1;
+
       updateMeta();
       renderScoreboard();
-      setAnnouncement(`${state.players[state.currentPlayer]}'s turn.`);
-      if (state.currentRound > state.totalRounds) finishGame();
+
+      if (state.currentRound > state.totalRounds) {
+        finishGame();
+      } else {
+        setAnnouncement(`${state.players[state.currentPlayer]}'s turn.`);
+      }
     }
 
-    function undo(){
+    function undo() {
       if (!state.historyStack.length) return;
       const prev = state.historyStack.pop();
       Object.assign(state, deepClone(prev));
-      
+
       if (state.boardType === "quad") {
         els.quadBtn.classList.remove("hidden");
       } else {
@@ -523,285 +532,248 @@
     }
 
     function finishGame() {
-  state.gameOver = true;
-  renderScoreboard();
-  renderFinalBoard();
-  els.finalPanel.classList.remove("hidden");
+      state.gameOver = true;
+      renderScoreboard();
+      renderFinalBoard();
+      els.finalPanel.classList.remove("hidden");
 
-  const maxScore = Math.max(...state.totals);
-  const winners = state.players.filter((_, i) => state.totals[i] === maxScore);
-  let summary = "";
+      const maxScore = Math.max(...state.totals);
+      const winners = state.players.filter((_, i) => state.totals[i] === maxScore);
+      let summary = "";
 
-  if (state.players.length === 1) {
-    summary = `${state.players[0]} finished with a total score of ${maxScore}.`;
-  } else {
-    summary = winners.length === 1 
-      ? `${winners[0]} wins ${maxScore}.` 
-      : `Tie at ${maxScore} between ${winners.join(", ")}.`;
-  }
+      if (state.players.length === 1) {
+        summary = `${state.players[0]} finished with a total score of ${maxScore}.`;
+      } else {
+        summary = winners.length === 1
+          ? `${winners[0]} wins with ${maxScore}.`
+          : `Tie at ${maxScore} between ${winners.join(", ")}.`;
+      }
 
-  els.finalSummary.textContent = `${state.mode}${state.boardType === "quad" ? " (Quad Board)" : ""} • ${summary}`;
-  setAnnouncement(summary, "good");
+      els.finalSummary.textContent = `${state.mode}${state.boardType === "quad" ? " (Quad Board)" : ""} • ${summary}`;
+      setAnnouncement(summary, "good");
 
-  // Save locally and post to Hellcastle Rating endpoint
-  if (!state.finalSaved) {
-    const savedMatch = saveCompletedMatch(); 
-    state.finalSaved = true;
-
-    if (savedMatch) {
-      sendResultsToHellcastleRating(savedMatch);
-    }
-  }
-
-  renderHistory();
-  renderLeaderboard();
-}
-async function sendResultsToHellcastleRating(matchData) {
-  if (!SHEET_API_URL || SHEET_API_URL.includes("YOUR_HELLCASTLE_RATING")) {
-    console.warn("Hellcastle Rating API URL not configured.");
-    return;
-  }
-
-  // Format payload expected by Hellcastle-Rating endpoint
-  const payload = {
-    game: matchData.mode,               // e.g., "Count Up" or "Count Up (Quad)"
-    date: matchData.date,
-    players: matchData.players.map((name, idx) => ({
-      name: name,
-      score: matchData.totals[idx],
-      ppr: matchData.ppr[idx],
-      first9: matchData.first9[idx]
-    })),
-    winner: matchData.winner
-  };
-
-  try {
-    const response = await fetch(SHEET_API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" }, // Avoids CORS preflight issues with Apps Script
-      body: JSON.stringify(payload)
-    });
-
-    if (response.ok) {
-      console.log("Results successfully sent to Hellcastle Rating.");
-    } else {
-      console.error("Failed to send results to Hellcastle Rating:", response.statusText);
-    }
-  } catch (err) {
-    console.error("Error sending results to Hellcastle Rating:", err);
-  }
-}
-    function renderScoreboard(){
-      const rounds = state.totalRounds || 0;
-      let headHtml = `<tr><th>Player</th>`;
-      for(let r=1;r<=rounds;r++) headHtml += `<th>R${r}</th>`;
-      headHtml += `<th>Total</th></tr>`;
-      els.scoreHead.innerHTML = headHtml;
-
-      let bodyHtml = "";
-      for (let p=0;p<state.players.length;p++){
-        const player = state.players[p];
-        bodyHtml += `<tr ${state.currentPlayer===p && !state.gameOver ? 'style="outline:2px solid rgba(30,91,109,.12);background:#fffefc"' : ''}><td style="text-align:left;font-weight:800">${player}</td>`;
-        for(let r=0;r<rounds;r++){
-          const val = state.roundScores[p]?.[r] ?? 0;
-          bodyHtml += `<td>${val}</td>`;
+      if (!state.finalSaved) {
+        const savedMatch = saveCompletedMatch();
+        state.finalSaved = true;
+        if (savedMatch) {
+          sendResultsToHellcastleRating(savedMatch);
         }
-        bodyHtml += `<td class="total">${state.totals[p] ?? 0}</td></tr>`;
       }
-      els.scoreBody.innerHTML = bodyHtml;
+
+      renderHistory();
+      renderLeaderboard();
+      showOverallLeaderboardModal();
     }
 
-    function calcPointsPerRound(total, rounds){
-      return rounds ? total / rounds : 0;
-    }
+    function renderOverallLeaderboard() {
+      els.overallLeaderboardBody.innerHTML = "";
+      const standings = state.players.map((name, i) => ({
+        name: name,
+        score: state.totals[i]
+      })).sort((a, b) => b.score - a.score);
 
-    function calcFirst9Average(dartsByRound){
-      const flat = (dartsByRound || []).flat().slice(0,9);
-      if (!flat.length) return 0;
-      const sum = flat.reduce((a,b)=>a+b,0);
-      return (sum / flat.length) * 3;
-    }
-
-    function renderFinalBoard(){
-      els.finalHead.innerHTML = `<tr><th>Player</th><th>Total</th><th>Points / Round</th><th>First 9 Avg</th></tr>`;
-      let body="";
-      for(let p=0;p<state.players.length;p++){
-        const name = state.players[p];
-        const tot = state.totals[p] ?? 0;
-        const ppr = calcPointsPerRound(tot, state.totalRounds);
-        const f9 = calcFirst9Average(state.dartScores[p]);
-        body += `<tr><td style="font-weight:800">${name}</td><td>${tot}</td><td>${ppr.toFixed(2)}</td><td>${f9.toFixed(2)}</td></tr>`;
-      }
-      els.finalBody.innerHTML = body;
-    }
-
-    function basePlayerRecord(name){
-      return { name, matches:0, wins:0, losses:0, ties:0, totalPoints:0, totalRounds:0, first9Samples:[], elo:1200 };
-    }
-
-    function expectedScore(ra, rb){
-      return 1 / (1 + Math.pow(10, (rb - ra) / 400));
-    }
-
-    function updateEloPairwise(leaderboard, playersTotals){
-      playersTotals.forEach(p => {
-        if(!leaderboard[p.name]) leaderboard[p.name] = basePlayerRecord(p.name);
+      standings.forEach((player, idx) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${idx + 1}</td>
+          <td>${player.name}</td>
+          <td><strong>${player.score}</strong></td>
+        `;
+        els.overallLeaderboardBody.appendChild(row);
       });
-      if (playersTotals.length < 2) return;
-      
-      const k = 24;
-      for (let i=0;i<playersTotals.length;i++){
-        for (let j=i+1;j<playersTotals.length;j++){
-          const A = playersTotals[i], B = playersTotals[j];
-          const aRec = leaderboard[A.name], bRec = leaderboard[B.name];
-          const resultA = A.total > B.total ? 1 : A.total === B.total ? 0.5 : 0;
-          const ea = expectedScore(aRec.elo, bRec.elo);
-          const eb = expectedScore(bRec.elo, aRec.elo);
-          aRec.elo = Math.round(aRec.elo + k * (resultA - ea));
-          bRec.elo = Math.round(bRec.elo + k * ((1 - resultA) - eb));
+    }
+
+    function showOverallLeaderboardModal() {
+      renderOverallLeaderboard();
+      els.eventSummaryModal.classList.remove("hidden");
+    }
+
+    async function sendResultsToHellcastleRating(matchData) {
+      if (!SHEET_API_URL || SHEET_API_URL.includes("YOUR_HELLCASTLE_RATING")) {
+        console.warn("Hellcastle Rating API URL not configured.");
+        return;
+      }
+
+      const payload = {
+        game: matchData.mode,
+        date: matchData.date,
+        players: matchData.players.map((name, idx) => ({
+          name: name,
+          score: matchData.totals[idx],
+          ppr: matchData.ppr[idx],
+          first9: matchData.first9[idx]
+        })),
+        winner: matchData.winner
+      };
+
+      try {
+        const response = await fetch(SHEET_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          console.log("Results successfully sent to Hellcastle Rating.");
+        } else {
+          console.error("Failed to send results to Hellcastle Rating:", response.statusText);
         }
+      } catch (err) {
+        console.error("Error sending results to Hellcastle Rating:", err);
       }
     }
 
     function saveCompletedMatch() {
-  const matches = getStorage(STORAGE_KEYS.matches, []);
-  const leaderboard = getStorage(STORAGE_KEYS.leaderboard, {});
+      const matches = getStorage(STORAGE_KEYS.matches, []);
+      const match = {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        date: state.selectedDate || todayStr(),
+        mode: `${state.mode}${state.boardType === "quad" ? " (Quad)" : ""}`,
+        rounds: state.totalRounds,
+        players: state.players.slice(),
+        totals: state.totals.slice(),
+        roundScores: deepClone(state.roundScores),
+        first9: state.dartScores.map(ds => calcFirst9Average(ds)),
+        ppr: state.totals.map(t => calcPointsPerRound(t, state.totalRounds)),
+        winner: (() => {
+          if (state.players.length === 1) return state.players[0];
+          const maxScore = Math.max(...state.totals);
+          const winners = state.players.filter((_, i) => state.totals[i] === maxScore);
+          return winners.length === 1 ? winners[0] : "Tie";
+        })()
+      };
 
-  const match = {
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-    date: state.selectedDate || todayStr(),
-    mode: `${state.mode}${state.boardType === "quad" ? " (Quad)" : ""}`,
-    rounds: state.totalRounds,
-    players: state.players.slice(),
-    totals: state.totals.slice(),
-    roundScores: deepClone(state.roundScores),
-    first9: state.dartScores.map(ds => calcFirst9Average(ds)),
-    ppr: state.totals.map(t => calcPointsPerRound(t, state.totalRounds)),
-    winner: (() => {
-      if (state.players.length === 1) return state.players[0];
-      const maxScore = Math.max(...state.totals);
-      const winners = state.players.filter((_, i) => state.totals[i] === maxScore);
-      return winners.length === 1 ? winners[0] : "Tie";
-    })()
-  };
-
-  matches.unshift(match);
-  setStorage(STORAGE_KEYS.matches, matches);
-
-  // ... (Existing leaderboard/ELO update logic)
-
-  return match;
-}
-      const playersTotals = state.players.map((name,i)=>({name,total:state.totals[i]}));
-      playersTotals.forEach(p => {
-        if(!leaderboard[p.name]) leaderboard[p.name] = basePlayerRecord(p.name);
-      });
-
-      const maxScore = Math.max(...state.totals);
-      const winners = playersTotals.filter(p=>p.total===maxScore).map(p=>p.name);
-
-      playersTotals.forEach(p=>{
-        const rec = leaderboard[p.name];
-        rec.matches += 1;
-        rec.totalPoints += p.total;
-        rec.totalRounds += state.totalRounds;
-        rec.first9Samples.push(calcFirst9Average(state.dartScores[state.players.indexOf(p.name)] || []));
-        if (state.players.length > 1) {
-          if (winners.length>1 && winners.includes(p.name)) rec.ties +=1;
-          else if (winners.length===1 && winners[0]===p.name) rec.wins +=1;
-          else rec.losses +=1;
-        }
-      });
-
-      updateEloPairwise(leaderboard, playersTotals);
-      setStorage(STORAGE_KEYS.leaderboard, leaderboard);
+      matches.unshift(match);
+      setStorage(STORAGE_KEYS.matches, matches);
+      return match;
     }
 
-    function renderHistory(){
-      const matches = getStorage(STORAGE_KEYS.matches, []);
-      if (!matches.length){
-        els.historyList.innerHTML = '<div class="history-item">No saved matches yet.</div>';
-        return;
-      }
-      els.historyList.innerHTML = matches.map(m=> {
-        const players = m.players.map((n,i)=> `${n}: ${m.totals[i]}`).join(" • ");
-        return `<div class="history-item"><div style="font-weight:800">${m.mode} • ${m.date}</div><div style="color:var(--muted);margin-top:6px">${players}</div><div style="margin-top:6px">Winner: ${m.winner}</div></div>`;
+    function renderScoreboard() {
+      els.scoreHead.innerHTML = `<tr><th>Player</th>${Array.from({ length: state.totalRounds }, (_, i) => `<th>R${i + 1}</th>`).join("")}<th>Total</th></tr>`;
+      els.scoreBody.innerHTML = state.players.map((name, pIdx) => {
+        const roundsHtml = Array.from({ length: state.totalRounds }, (_, rIdx) => {
+          const isCurrent = pIdx === state.currentPlayer && rIdx === state.currentRound - 1 && !state.gameOver;
+          const val = state.roundScores[pIdx]?.[rIdx] ?? 0;
+          return `<td style="${isCurrent ? "background:#fff3d6;font-weight:bold" : ""}">${val}</td>`;
+        }).join("");
+
+        return `<tr>
+          <td><strong>${name}</strong></td>
+          ${roundsHtml}
+          <td class="total">${state.totals[pIdx] ?? 0}</td>
+        </tr>`;
       }).join("");
     }
 
-    function renderLeaderboard(){
-      const lb = getStorage(STORAGE_KEYS.leaderboard, {});
-      const rows = Object.values(lb)
-        .map(p => ({
-          ...p,
-          ppr: p.totalRounds ? p.totalPoints/p.totalRounds : 0,
-          first9Avg: (p.first9Samples.length ? (p.first9Samples.reduce((a,b)=>a+b,0)/p.first9Samples.length) : 0)
-        }))
-        .sort((a,b)=> b.elo - a.elo || b.wins - a.wins || b.ppr - a.ppr);
+    function renderFinalBoard() {
+      els.finalHead.innerHTML = `<tr><th>Rank</th><th>Player</th><th>Total Score</th><th>PPR</th><th>First 9 Avg</th></tr>`;
+      const ranked = state.players.map((name, idx) => ({
+        name,
+        total: state.totals[idx] || 0,
+        ppr: calcPointsPerRound(state.totals[idx] || 0, state.totalRounds),
+        first9: calcFirst9Average(state.dartScores[idx])
+      })).sort((a, b) => b.total - a.total);
 
-      if (!rows.length){
-        els.leaderboardList.innerHTML = '<div class="leader-item">No leaderboard data yet.</div>';
+      els.finalBody.innerHTML = ranked.map((item, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${item.name}</td>
+          <td class="total">${item.total}</td>
+          <td>${item.ppr}</td>
+          <td>${item.first9}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderHistory() {
+      const matches = getStorage(STORAGE_KEYS.matches, []);
+      if (!matches.length) {
+        els.historyList.innerHTML = `<div style="color:var(--muted);font-size:.85rem">No history recorded yet.</div>`;
         return;
       }
-      els.leaderboardList.innerHTML = rows.map((p,i)=> `
-        <div class="leader-item">
-          <div style="font-weight:800">#${i+1} ${p.name}</div>
-          <div style="color:var(--muted);margin-top:6px">${p.matches} matches • ${p.wins}W ${p.losses}L ${p.ties}T</div>
-          <div style="margin-top:6px">ELO: ${p.elo} • P/R: ${p.ppr.toFixed(2)} • First 9: ${p.first9Avg.toFixed(2)}</div>
+
+      els.historyList.innerHTML = matches.map(m => `
+        <div class="history-item">
+          <div style="font-size:.8rem;color:var(--muted)">${m.date} • ${m.mode}</div>
+          <div style="font-weight:bold;margin-top:2px">Winner: ${m.winner}</div>
+          <div style="font-size:.85rem;margin-top:4px">
+            ${m.players.map((p, i) => `${p}: ${m.totals[i]}`).join(" | ")}
+          </div>
         </div>
       `).join("");
     }
 
-    function newGame(){
-      els.setupPanel.classList.remove("hidden");
-      els.finalPanel.classList.add("hidden");
-      setAnnouncement("Setup a new match.");
+    function renderLeaderboard() {
+      const matches = getStorage(STORAGE_KEYS.matches, []);
+      const playerStats = {};
+
+      matches.forEach(m => {
+        m.players.forEach((p, idx) => {
+          if (!playerStats[p]) playerStats[p] = { name: p, games: 0, totalScore: 0 };
+          playerStats[p].games += 1;
+          playerStats[p].totalScore += m.totals[idx] || 0;
+        });
+      });
+
+      const list = Object.values(playerStats).sort((a, b) => b.totalScore - a.totalScore);
+      if (!list.length) {
+        els.leaderboardList.innerHTML = `<div style="color:var(--muted);font-size:.85rem">No matches logged yet.</div>`;
+        return;
+      }
+
+      els.leaderboardList.innerHTML = list.map(item => `
+        <div class="leader-item">
+          <strong>${item.name}</strong>
+          <div style="font-size:.8rem;color:var(--muted);margin-top:2px">
+            Matches: ${item.games} | Total Score: ${item.totalScore}
+          </div>
+        </div>
+      `).join("");
     }
 
-    els.addPlayerBtn.addEventListener("click", ()=>addPlayerField());
-    els.removePlayerBtn.addEventListener("click", ()=>{
-      const rows = els.playerList.children;
-      if (rows.length > 1) rows[rows.length-1].remove();
-      refreshPlayerPlaceholders();
-    });
-    els.startGameBtn.addEventListener("click", ()=>{
-      startGame();
-      renderScoreboard();
-    });
-    els.multRow.addEventListener("click", (e)=>{
-      const btn = e.target.closest("button");
-      if (!btn || !btn.dataset.mult) return;
-      state.multiplier = Number(btn.dataset.mult);
-      updateMeta();
-    });
-    els.missBtn.addEventListener("click", ()=>recordMiss());
-    els.undoBtn.addEventListener("click", ()=>undo());
-    els.endTurnBtn.addEventListener("click", ()=>endTurn());
-    els.newGameBtn.addEventListener("click", ()=>{ location.reload(); });
-    els.leaderboardToggle.addEventListener("click", ()=>{
-      els.leaderboardPanel.classList.remove("hidden");
-      els.historyPanel.classList.add("hidden");
-      renderLeaderboard();
-    });
-    els.historyToggle.addEventListener("click", ()=>{
-      els.historyPanel.classList.remove("hidden");
-      els.leaderboardPanel.classList.add("hidden");
-      renderHistory();
-    });
-
-    document.addEventListener("keydown", (e)=>{
-      if (e.key === "Enter" && !els.setupPanel.classList.contains("hidden")) startGame();
-    });
-
-    (function init(){
+    // --- DOM Event Initialization ---
+    document.addEventListener("DOMContentLoaded", () => {
+      // Initialize default player fields
       addPlayerField("Player 1");
       addPlayerField("Player 2");
-      els.matchDate.value = todayStr();
-      buildTargetButtons();
+
+      // Bind button events
+      els.addPlayerBtn.addEventListener("click", () => addPlayerField());
+      els.startGameBtn.addEventListener("click", startGame);
+      els.undoBtn.addEventListener("click", undo);
+      els.endTurnBtn.addEventListener("click", endTurn);
+      els.newGameBtn.addEventListener("click", () => {
+        els.setupPanel.classList.remove("hidden");
+        resetStateForGame();
+      });
+      els.missBtn.addEventListener("click", recordMiss);
+
+      els.nextEventBtn.addEventListener("click", () => {
+        els.eventSummaryModal.classList.add("hidden");
+        els.setupPanel.classList.remove("hidden");
+      });
+
+      els.multButtons().forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.multiplier = Number(btn.dataset.mult);
+          updateMeta();
+        });
+      });
+
+      els.leaderboardToggle.addEventListener("click", () => {
+        els.leaderboardPanel.classList.toggle("hidden");
+        els.historyPanel.classList.toggle("hidden");
+      });
+
+      els.historyToggle.addEventListener("click", () => {
+        els.historyPanel.classList.remove("hidden");
+        els.leaderboardPanel.classList.add("hidden");
+      });
+
+      // Render initial stored views
       renderHistory();
       renderLeaderboard();
-      updateMeta();
-    })();
+    });
   </script>
 </body>
 </html>
