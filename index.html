@@ -1,172 +1,740 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Count Up</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Count Up (Multiplayer)</title>
+  <meta name="description" content="Count Up darts app — multiplayer, local history, leaderboard with ELO" />
   <style>
+    :root {
+      --bg: #f5efe5;
+      --ink: #1d1916;
+      --muted: #6d6257;
+      --accent: #b44d2c;
+      --good: #2f7d4d;
+      --warn: #9b2e2e;
+      --paper: #faf4eb;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
     body {
-      font-family: system-ui, sans-serif;
-      background: #111827;
-      color: #e5e7eb;
       margin: 0;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      background: var(--bg);
+      color: var(--ink);
+      padding: 18px;
     }
-    .card {
-      background: #1f2937;
-      border: 1px solid #374151;
-      border-radius: 8px;
-      padding: 16px;
-      max-width: 340px;
+    .container { max-width: 1200px; margin: 0 auto; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+    h1 { margin: 0; font-size: 1.6rem; }
+    .controls-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .panel { background: var(--paper); padding: 14px; border-radius: var(--radius); box-shadow: 0 6px 18px rgba(0,0,0,.06); }
+    .player-list { display: grid; gap: 8px; margin-top: 8px; }
+    .player-row { display: flex; gap: 8px; }
+    input[type="text"] { padding: 8px; border-radius: 8px; border: 1px solid #ddd; flex: 1; }
+    button { padding: 8px 12px; border-radius: 8px; border: 0; background: #eee; cursor: pointer; }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), #d96f47); color: white; }
+    .btn-alt { background: #1e5b6d; color: white; }
+    .btn-warn { background: linear-gradient(135deg, #8f2d2d, #b34343); color: white; }
+    .game-grid { display: grid; grid-template-columns: 1fr 420px; gap: 16px; margin-top: 18px; }
+    .meta-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 12px; }
+    .meta { background: #fff; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #eee; }
+    .meta .k { font-size: .75rem; color: var(--muted); text-transform: uppercase; }
+    .meta .v { font-weight: 800; font-size: 1.25rem; }
+    .mult-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .mult-btn { padding: 10px; border-radius: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
+    .mult-btn.active { outline: 3px solid rgba(30, 91, 109, .12); }
+    .targets { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .target-btn { padding: 14px; border-radius: 8px; background: #fff; border: 1px solid #ddd; font-weight: 800; cursor: pointer; }
+    .target-btn.bull { background: linear-gradient(180deg, #fff6c9, #f7c65f); color: #5a3a10; }
+    .actions { display: flex; gap: 8px; margin-top: 12px; }
+    .announce { margin-top: 12px; padding: 10px; border-radius: 8px; background: #fff; border: 1px solid #eee; min-height: 44px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { padding: 8px; border: 1px solid #eee; text-align: center; }
+    th { background: #fafafa; font-size: .8rem; color: var(--muted); }
+    td.total { font-weight: 900; }
+    .side-panel { display: flex; flex-direction: column; gap: 12px; }
+    .list { max-height: 420px; overflow: auto; padding-right: 6px; }
+    .history-item, .leader-item { padding: 8px; border-radius: 8px; background: #fff; border: 1px solid #eee; margin-bottom: 8px; }
+    .hidden { display: none !important; }
+
+    /* Event Summary Modal Styles */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      box-sizing: border-box;
-      text-align: center;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.65);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
     }
-    button {
-      background: #2563eb;
+    .modal-content {
+      background: var(--paper);
+      padding: 24px;
+      border-radius: var(--radius);
+      text-align: center;
+      min-width: 320px;
+      max-width: 90%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    #next-event-btn {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-weight: bold;
+      background: linear-gradient(135deg, var(--accent), #d96f47);
       color: white;
       border: none;
-      padding: 10px;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: background 0.15s ease;
-    }
-    button:hover {
-      background: #1d4ed8;
-    }
-    button.secondary {
-      background: #4b5563;
-    }
-    button.secondary:hover {
-      background: #374151;
-    }
-    button.active {
-      background: #dc2626 !important; /* Highlights Quad mode when selected */
-    }
-    .hidden {
-      display: none !important;
+      font-size: 1rem;
     }
 
-    /* Standard Dartboard Grid */
-    .dartboard-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 6px;
-      margin-top: 10px;
-    }
-    
-    .multiplier-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-      margin-top: 8px;
-    }
-
-    .bull-row {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 6px;
-      margin-top: 8px;
-    }
-
-    /* Quad Specific Board Styling */
-    .quad-indicator {
-      margin-top: 10px;
-      padding: 6px;
-      background: #7f1d1d;
-      color: #fca5a5;
-      font-size: 12px;
-      font-weight: bold;
-      border-radius: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+    @media (max-width: 980px) {
+      .game-grid { grid-template-columns: 1fr; }
+      .meta-strip { grid-template-columns: repeat(3, 1fr); }
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Count Up — Multiplayer</h1>
+        <div style="color:var(--muted);font-size:.9rem">Count Up, Count Up15, Quickdraw — local history & leaderboard</div>
+      </div>
+      <div class="controls-row">
+        <button id="leaderboardToggle" class="btn-alt">Leaderboard</button>
+        <button id="historyToggle" class="btn">History</button>
+      </div>
+    </header>
 
-  <div class="card">
-    <h2>Dartboard Input</h2>
+    <section class="panel" id="setupPanel">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <div>
+          <div style="font-weight:800">Players</div>
+          <div style="color:var(--muted);font-size:.9rem">Add as many players as you like</div>
+        </div>
+        <div>
+          <button id="addPlayerBtn" class="btn">Add Player</button>
+          <button id="removePlayerBtn" class="btn">Remove</button>
+        </div>
+      </div>
+      <div class="player-list" id="playerList"></div>
+      <div style="display:flex;gap:12px;margin-top:10px;align-items:center;flex-wrap:wrap">
+        <div>
+          <label style="font-size:.85rem;color:var(--muted);display:block">Board Type</label>
+          <select id="boardType" style="padding:8px;border-radius:8px;border:1px solid #ddd">
+            <option value="basic">Basic Board</option>
+            <option value="quad">Quad Board</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.85rem;color:var(--muted);display:block">Game Mode</label>
+          <select id="gameMode" style="padding:8px;border-radius:8px;border:1px solid #ddd">
+            <option>Count Up</option>
+            <option>Count Up15</option>
+            <option>Quickdraw</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.85rem;color:var(--muted);display:block">Match Date</label>
+          <input id="matchDate" type="date" style="padding:8px;border-radius:8px;border:1px solid #ddd" />
+        </div>
+        <div style="margin-left:auto">
+          <button id="startGameBtn" class="btn-primary">Start Game</button>
+        </div>
+      </div>
+    </section>
 
-    <!-- Multipliers & Miss -->
-    <div class="multiplier-row">
-      <button id="missBtn" class="secondary">Miss</button>
-      <button class="mult-btn" data-m="2">Double</button>
-      <button class="mult-btn" data-m="3">Triple</button>
-      <button id="quadToggleBtn" class="mult-btn" data-m="4">Quad</button>
+    <div class="game-grid" id="gameGrid">
+      <div>
+        <section class="panel" id="gamePanel">
+          <div class="meta-strip">
+            <div class="meta"><div class="k">Current</div><div class="v" id="currentPlayer">—</div></div>
+            <div class="meta"><div class="k">Mode</div><div class="v" id="modeLabel">—</div></div>
+            <div class="meta"><div class="k">Round</div><div class="v" id="roundLabel">—</div></div>
+            <div class="meta"><div class="k">Dart</div><div class="v" id="dartLabel">—</div></div>
+            <div class="meta"><div class="k">Mult</div><div class="v" id="multLabel">Single</div></div>
+          </div>
+          <div style="margin-top:6px;font-size:.9rem;color:var(--muted)">Select multiplier then target. 3 darts per turn.</div>
+          <div class="mult-row" id="multRow" style="margin-top:10px">
+            <button class="mult-btn active" data-mult="1">Single</button>
+            <button class="mult-btn" data-mult="2">Double</button>
+            <button class="mult-btn" data-mult="3">Triple</button>
+            <button class="mult-btn hidden" id="quadBtn" data-mult="4">Quad</button>
+            <button id="missBtn" class="mult-btn btn-warn">Miss</button>
+          </div>
+          <div class="targets panel" id="targetGrid" style="margin-top:12px"></div>
+          <div class="actions">
+            <button id="undoBtn" class="btn">Undo</button>
+            <button id="endTurnBtn" class="btn">End Turn</button>
+            <button id="newGameBtn" class="btn-warn">New Game</button>
+          </div>
+          <div class="announce" id="announcement">Set players and start a match.</div>
+        </section>
+      </div>
+
+      <aside class="side-panel">
+        <section class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><strong>Scoreboard</strong><div style="font-size:.85rem;color:var(--muted)">Round totals and running score</div></div>
+            <div id="scoreboardControls" style="display:flex;gap:6px"></div>
+          </div>
+          <div class="table-wrap" style="margin-top:8px">
+            <table id="scoreTable">
+              <thead id="scoreHead"></thead>
+              <tbody id="scoreBody"></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="panel" id="historyPanel">
+          <strong>Match History</strong>
+          <div class="list" id="historyList"></div>
+        </section>
+        <section class="panel hidden" id="leaderboardPanel">
+          <strong>Leaderboard</strong>
+          <div class="list" id="leaderboardList"></div>
+        </section>
+      </aside>
     </div>
 
-    <!-- Active Quad Mode Notification -->
-    <div id="quadBanner" class="quad-indicator hidden">Quad Ring Active (4x)</div>
+    <section class="panel hidden" id="finalPanel" style="margin-top:14px">
+      <strong>Final Scoreboard</strong>
+      <div id="finalSummary" style="color:var(--muted);margin-top:6px">Match complete</div>
+      <table style="margin-top:8px;width:100%">
+        <thead id="finalHead"></thead>
+        <tbody id="finalBody"></tbody>
+      </table>
+    </section>
 
-    <!-- Numbers 1 through 20 -->
-    <div class="dartboard-grid" id="numberBoard">
-      <button data-value="1">1</button>
-      <button data-value="2">2</button>
-      <button data-value="3">3</button>
-      <button data-value="4">4</button>
-      <button data-value="5">5</button>
-      <button data-value="6">6</button>
-      <button data-value="7">7</button>
-      <button data-value="8">8</button>
-      <button data-value="9">9</button>
-      <button data-value="10">10</button>
-      <button data-value="11">11</button>
-      <button data-value="12">12</button>
-      <button data-value="13">13</button>
-      <button data-value="14">14</button>
-      <button data-value="15">15</button>
-      <button data-value="16">16</button>
-      <button data-value="17">17</button>
-      <button data-value="18">18</button>
-      <button data-value="19">19</button>
-      <button data-value="20">20</button>
-    </div>
-
-    <!-- Bullseye options -->
-    <div class="bull-row">
-      <button data-bull="25">Bull</button>
-      <button data-bull="50">Double Bull</button>
+    <!-- Overall Leaderboard & Next Event Modal -->
+    <div id="eventSummaryModal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Event Complete!</h2>
+        <h3 style="color:var(--muted);margin-top:0">Overall Leaderboard</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Player</th>
+              <th>Total Score</th>
+            </tr>
+          </thead>
+          <tbody id="overallLeaderboardBody"></tbody>
+        </table>
+        <button id="nextEventBtn">NEXT EVENT</button>
+      </div>
     </div>
   </div>
 
   <script>
-    let activeMultiplier = 1;
-    const quadBtn = document.getElementById('quadToggleBtn');
-    const quadBanner = document.getElementById('quadBanner');
-    const multBtns = document.querySelectorAll('.mult-btn');
+    const STORAGE_KEYS = { matches: "countup_matches_multiv1", leaderboard: "countup_leaderboard_multiv1" };
+    const MODE_ROUNDS = { "Count Up": 8, "Count Up15": 15, "Quickdraw": 3 };
 
-    multBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const multVal = parseInt(btn.getAttribute('data-m'), 10);
+    const state = {
+      players: [],
+      mode: "Count Up",
+      boardType: "basic",
+      totalRounds: 8,
+      currentPlayer: 0,
+      currentRound: 1,
+      currentDart: 1,
+      multiplier: 1,
+      gameStarted: false,
+      gameOver: false,
+      totals: [],
+      roundScores: [],
+      dartScores: [],
+      historyStack: [],
+      selectedDate: "",
+      finalSaved: false
+    };
 
-        // Toggle state off if clicking the currently active multiplier button
-        if (activeMultiplier === multVal) {
-          activeMultiplier = 1;
-          btn.classList.remove('active');
-          quadBanner.classList.add('hidden');
-        } else {
-          // Clear active state from all buttons
-          multBtns.forEach(b => b.classList.remove('active'));
+    const els = {
+      playerList: document.getElementById("playerList"),
+      addPlayerBtn: document.getElementById("addPlayerBtn"),
+      removePlayerBtn: document.getElementById("removePlayerBtn"),
+      startGameBtn: document.getElementById("startGameBtn"),
+      matchDate: document.getElementById("matchDate"),
+      gameMode: document.getElementById("gameMode"),
+      boardType: document.getElementById("boardType"),
+      quadBtn: document.getElementById("quadBtn"),
+      targetGrid: document.getElementById("targetGrid"),
+      multRow: document.getElementById("multRow"),
+      multButtons: () => Array.from(document.querySelectorAll(".mult-btn[data-mult]")),
+      missBtn: document.getElementById("missBtn"),
+      undoBtn: document.getElementById("undoBtn"),
+      endTurnBtn: document.getElementById("endTurnBtn"),
+      newGameBtn: document.getElementById("newGameBtn"),
+      announcement: document.getElementById("announcement"),
+      currentPlayer: document.getElementById("currentPlayer"),
+      modeLabel: document.getElementById("modeLabel"),
+      roundLabel: document.getElementById("roundLabel"),
+      dartLabel: document.getElementById("dartLabel"),
+      multLabel: document.getElementById("multLabel"),
+      scoreHead: document.getElementById("scoreHead"),
+      scoreBody: document.getElementById("scoreBody"),
+      finalPanel: document.getElementById("finalPanel"),
+      finalHead: document.getElementById("finalHead"),
+      finalBody: document.getElementById("finalBody"),
+      finalSummary: document.getElementById("finalSummary"),
+      historyList: document.getElementById("historyList"),
+      leaderboardList: document.getElementById("leaderboardList"),
+      leaderboardPanel: document.getElementById("leaderboardPanel"),
+      historyPanel: document.getElementById("historyPanel"),
+      leaderboardToggle: document.getElementById("leaderboardToggle"),
+      historyToggle: document.getElementById("historyToggle"),
+      setupPanel: document.getElementById("setupPanel"),
+      eventSummaryModal: document.getElementById("eventSummaryModal"),
+      overallLeaderboardBody: document.getElementById("overallLeaderboardBody"),
+      nextEventBtn: document.getElementById("nextEventBtn")
+    };
 
-          // Set new active multiplier
-          activeMultiplier = multVal;
-          btn.classList.add('active');
+    function todayStr() {
+      const d = new Date();
+      const tz = d.getTimezoneOffset();
+      const local = new Date(d.getTime() - tz * 60000);
+      return local.toISOString().slice(0, 10);
+    }
 
-          // Show Quad indicator only when Quad is selected
-          if (multVal === 4) {
-            quadBanner.classList.remove('hidden');
-          } else {
-            quadBanner.classList.add('hidden');
-          }
-        }
+    function getStorage(key, fallback) {
+      try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch (e) { return fallback; }
+    }
+
+    function setStorage(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function deepClone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function calcPointsPerRound(total, rounds) {
+      return rounds > 0 ? (total / rounds).toFixed(2) : "0.00";
+    }
+
+    function calcFirst9Average(darts) {
+      const flatDarts = (darts || []).flat().slice(0, 9);
+      if (!flatDarts.length) return "0.00";
+      const sum = flatDarts.reduce((a, b) => a + b, 0);
+      return (sum / (flatDarts.length / 3)).toFixed(2);
+    }
+
+    function addPlayerField(name = "") {
+      const index = els.playerList.children.length + 1;
+      const row = document.createElement("div");
+      row.className = "player-row";
+      row.innerHTML = `
+        <input type="text" placeholder="Player ${index} name" value="${name.replaceAll('"', '&quot;')}" />
+        <button class="btn remove" title="Remove">✕</button>
+      `;
+      row.querySelector(".remove").addEventListener("click", () => {
+        if (els.playerList.children.length <= 1) return;
+        row.remove();
+        refreshPlayerPlaceholders();
       });
+      els.playerList.appendChild(row);
+      refreshPlayerPlaceholders();
+    }
+
+    function refreshPlayerPlaceholders() {
+      Array.from(els.playerList.children).forEach((row, idx) => {
+        row.querySelector("input").placeholder = `Player ${idx + 1} name`;
+      });
+      Array.from(els.playerList.querySelectorAll(".remove")).forEach(btn => {
+        btn.style.visibility = els.playerList.children.length <= 1 ? "hidden" : "visible";
+      });
+    }
+
+    function getPlayerNamesFromInputs() {
+      return Array.from(els.playerList.querySelectorAll("input"))
+        .map(i => i.value.trim())
+        .filter(Boolean);
+    }
+
+    function buildTargetButtons() {
+      els.targetGrid.innerHTML = "";
+      for (let i = 1; i <= 20; i++) {
+        const btn = document.createElement("button");
+        btn.className = "target-btn";
+        btn.textContent = i;
+        btn.dataset.target = i;
+        btn.addEventListener("click", () => recordThrow(Number(btn.dataset.target)));
+        els.targetGrid.appendChild(btn);
+      }
+      const bull = document.createElement("button");
+      bull.className = "target-btn bull";
+      bull.textContent = "Bull";
+      bull.dataset.target = "BULL";
+      bull.addEventListener("click", () => recordThrow("BULL"));
+      els.targetGrid.appendChild(bull);
+    }
+
+    function resetStateForGame() {
+      state.totalRounds = MODE_ROUNDS[state.mode] ?? 8;
+      state.currentPlayer = 0;
+      state.currentRound = 1;
+      state.currentDart = 1;
+      state.multiplier = 1;
+      state.gameStarted = true;
+      state.gameOver = false;
+      state.totals = state.players.map(() => 0);
+      state.roundScores = state.players.map(() => Array(state.totalRounds).fill(0));
+      state.dartScores = state.players.map(() => Array.from({ length: state.totalRounds }, () => []));
+      state.historyStack = [];
+      state.finalSaved = false;
+
+      if (state.boardType === "quad") {
+        els.quadBtn.classList.remove("hidden");
+      } else {
+        els.quadBtn.classList.add("hidden");
+      }
+
+      setAnnouncement(`${state.players[0]} to throw first.`);
+      updateMeta();
+      renderScoreboard();
+      renderFinalBoard();
+      els.finalPanel.classList.add("hidden");
+      els.eventSummaryModal.classList.add("hidden");
+    }
+
+    function startGame() {
+      const names = getPlayerNamesFromInputs();
+      if (names.length < 1) {
+        setAnnouncement("Enter at least one player name to start.", "warn");
+        return;
+      }
+      state.players = names.slice();
+      state.boardType = els.boardType.value;
+      state.mode = els.gameMode.value;
+      state.selectedDate = els.matchDate.value || todayStr();
+      buildTargetButtons();
+      resetStateForGame();
+      els.setupPanel.classList.add("hidden");
+      document.getElementById("gamePanel").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function updateMeta() {
+      els.currentPlayer.textContent = state.players[state.currentPlayer] ?? "—";
+      els.modeLabel.textContent = `${state.mode}${state.boardType === "quad" ? " (Quad)" : ""}`;
+      els.roundLabel.textContent = `${Math.min(state.currentRound, state.totalRounds)} / ${state.totalRounds}`;
+      els.dartLabel.textContent = `${state.currentDart} / 3`;
+      els.multLabel.textContent = state.multiplier === 1 ? "Single" : state.multiplier === 2 ? "Double" : state.multiplier === 3 ? "Triple" : "Quad";
+      els.multButtons().forEach(b => b.classList.toggle("active", Number(b.dataset.mult) === state.multiplier));
+    }
+
+    function setAnnouncement(msg, type = "") {
+      els.announcement.textContent = msg;
+      els.announcement.className = type ? `announce ${type}` : "announce";
+    }
+
+    function saveSnapshot() {
+      state.historyStack.push(deepClone({
+        players: state.players,
+        mode: state.mode,
+        boardType: state.boardType,
+        totalRounds: state.totalRounds,
+        currentPlayer: state.currentPlayer,
+        currentRound: state.currentRound,
+        currentDart: state.currentDart,
+        multiplier: state.multiplier,
+        gameStarted: state.gameStarted,
+        gameOver: state.gameOver,
+        totals: state.totals,
+        roundScores: state.roundScores,
+        dartScores: state.dartScores,
+        finalSaved: state.finalSaved,
+        selectedDate: state.selectedDate
+      }));
+      if (state.historyStack.length > 200) state.historyStack.shift();
+    }
+
+    function scoreValue(target, mult) {
+      if (target === "BULL") return 50;
+      return Number(target) * mult;
+    }
+
+    function recordThrow(target) {
+      if (!state.gameStarted || state.gameOver) return;
+      saveSnapshot();
+      const p = state.currentPlayer;
+      const rIndex = state.currentRound - 1;
+      const points = scoreValue(target, state.multiplier);
+
+      state.dartScores[p][rIndex] = state.dartScores[p][rIndex] || [];
+      state.dartScores[p][rIndex].push(points);
+      state.roundScores[p][rIndex] = (state.roundScores[p][rIndex] || 0) + points;
+      state.totals[p] = (state.totals[p] || 0) + points;
+
+      setAnnouncement(`${state.players[p]} scores ${points} (${target} x ${state.multiplier}).`, "good");
+      advanceDart();
+    }
+
+    function recordMiss() {
+      if (!state.gameStarted || state.gameOver) return;
+      saveSnapshot();
+      const p = state.currentPlayer;
+      const rIndex = state.currentRound - 1;
+
+      state.dartScores[p][rIndex] = state.dartScores[p][rIndex] || [];
+      state.dartScores[p][rIndex].push(0);
+
+      setAnnouncement(`${state.players[p]} misses.`, "warn");
+      advanceDart();
+    }
+
+    function advanceDart() {
+      if (state.currentDart >= 3) {
+        endTurn();
+      } else {
+        state.currentDart += 1;
+        updateMeta();
+        renderScoreboard();
+      }
+    }
+
+    function endTurn() {
+      if (!state.gameStarted || state.gameOver) return;
+      state.currentPlayer = (state.currentPlayer + 1) % state.players.length;
+      if (state.currentPlayer === 0) state.currentRound += 1;
+      state.currentDart = 1;
+      state.multiplier = 1;
+
+      updateMeta();
+      renderScoreboard();
+
+      if (state.currentRound > state.totalRounds) {
+        finishGame();
+      } else {
+        setAnnouncement(`${state.players[state.currentPlayer]}'s turn.`);
+      }
+    }
+
+    function undo() {
+      if (!state.historyStack.length) return;
+      const prev = state.historyStack.pop();
+      Object.assign(state, deepClone(prev));
+
+      if (state.boardType === "quad") {
+        els.quadBtn.classList.remove("hidden");
+      } else {
+        els.quadBtn.classList.add("hidden");
+      }
+
+      updateMeta();
+      renderScoreboard();
+      renderFinalBoard();
+      setAnnouncement("Last action undone.");
+    }
+
+    function finishGame() {
+      state.gameOver = true;
+      renderScoreboard();
+      renderFinalBoard();
+      els.finalPanel.classList.remove("hidden");
+
+      const maxScore = Math.max(...state.totals);
+      const winners = state.players.filter((_, i) => state.totals[i] === maxScore);
+      let summary = "";
+
+      if (state.players.length === 1) {
+        summary = `${state.players[0]} finished with a total score of ${maxScore}.`;
+      } else {
+        summary = winners.length === 1
+          ? `${winners[0]} wins with ${maxScore}.`
+          : `Tie at ${maxScore} between ${winners.join(", ")}.`;
+      }
+
+      els.finalSummary.textContent = `${state.mode}${state.boardType === "quad" ? " (Quad Board)" : ""} • ${summary}`;
+      setAnnouncement(summary, "good");
+
+      if (!state.finalSaved) {
+        saveCompletedMatch();
+        state.finalSaved = true;
+      }
+
+      renderHistory();
+      renderLeaderboard();
+      showOverallLeaderboardModal();
+    }
+
+    function renderOverallLeaderboard() {
+      els.overallLeaderboardBody.innerHTML = "";
+      const standings = state.players.map((name, i) => ({
+        name: name,
+        score: state.totals[i]
+      })).sort((a, b) => b.score - a.score);
+
+      standings.forEach((player, idx) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${idx + 1}</td>
+          <td>${player.name}</td>
+          <td><strong>${player.score}</strong></td>
+        `;
+        els.overallLeaderboardBody.appendChild(row);
+      });
+    }
+
+    function showOverallLeaderboardModal() {
+      renderOverallLeaderboard();
+      els.eventSummaryModal.classList.remove("hidden");
+    }
+
+    function saveCompletedMatch() {
+      const matches = getStorage(STORAGE_KEYS.matches, []);
+      const match = {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        date: state.selectedDate || todayStr(),
+        mode: `${state.mode}${state.boardType === "quad" ? " (Quad)" : ""}`,
+        rounds: state.totalRounds,
+        players: state.players.slice(),
+        totals: state.totals.slice(),
+        roundScores: deepClone(state.roundScores),
+        first9: state.dartScores.map(ds => calcFirst9Average(ds)),
+        ppr: state.totals.map(t => calcPointsPerRound(t, state.totalRounds)),
+        winner: (() => {
+          if (state.players.length === 1) return state.players[0];
+          const maxScore = Math.max(...state.totals);
+          const winners = state.players.filter((_, i) => state.totals[i] === maxScore);
+          return winners.length === 1 ? winners[0] : "Tie";
+        })()
+      };
+
+      matches.unshift(match);
+      setStorage(STORAGE_KEYS.matches, matches);
+      return match;
+    }
+
+    function renderScoreboard() {
+      els.scoreHead.innerHTML = `<tr><th>Player</th>${Array.from({ length: state.totalRounds }, (_, i) => `<th>R${i + 1}</th>`).join("")}<th>Total</th></tr>`;
+      els.scoreBody.innerHTML = state.players.map((name, pIdx) => {
+        const roundsHtml = Array.from({ length: state.totalRounds }, (_, rIdx) => {
+          const isCurrent = pIdx === state.currentPlayer && rIdx === state.currentRound - 1 && !state.gameOver;
+          const val = state.roundScores[pIdx]?.[rIdx] ?? 0;
+          return `<td style="${isCurrent ? "background:#fff3d6;font-weight:bold" : ""}">${val}</td>`;
+        }).join("");
+
+        return `<tr>
+          <td><strong>${name}</strong></td>
+          ${roundsHtml}
+          <td class="total">${state.totals[pIdx] ?? 0}</td>
+        </tr>`;
+      }).join("");
+    }
+
+    function renderFinalBoard() {
+      els.finalHead.innerHTML = `<tr><th>Rank</th><th>Player</th><th>Total Score</th><th>PPR</th><th>First 9 Avg</th></tr>`;
+      const ranked = state.players.map((name, idx) => ({
+        name,
+        total: state.totals[idx] || 0,
+        ppr: calcPointsPerRound(state.totals[idx] || 0, state.totalRounds),
+        first9: calcFirst9Average(state.dartScores[idx])
+      })).sort((a, b) => b.total - a.total);
+
+      els.finalBody.innerHTML = ranked.map((item, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${item.name}</td>
+          <td class="total">${item.total}</td>
+          <td>${item.ppr}</td>
+          <td>${item.first9}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderHistory() {
+      const matches = getStorage(STORAGE_KEYS.matches, []);
+      if (!matches.length) {
+        els.historyList.innerHTML = `<div style="color:var(--muted);font-size:.85rem">No history recorded yet.</div>`;
+        return;
+      }
+
+      els.historyList.innerHTML = matches.map(m => `
+        <div class="history-item">
+          <div style="font-size:.8rem;color:var(--muted)">${m.date} • ${m.mode}</div>
+          <div style="font-weight:bold;margin-top:2px">Winner: ${m.winner}</div>
+          <div style="font-size:.85rem;margin-top:4px">
+            ${m.players.map((p, i) => `${p}: ${m.totals[i]}`).join(" | ")}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderLeaderboard() {
+      const matches = getStorage(STORAGE_KEYS.matches, []);
+      const playerStats = {};
+
+      matches.forEach(m => {
+        m.players.forEach((p, idx) => {
+          if (!playerStats[p]) playerStats[p] = { name: p, games: 0, totalScore: 0 };
+          playerStats[p].games += 1;
+          playerStats[p].totalScore += m.totals[idx] || 0;
+        });
+      });
+
+      const list = Object.values(playerStats).sort((a, b) => b.totalScore - a.totalScore);
+      if (!list.length) {
+        els.leaderboardList.innerHTML = `<div style="color:var(--muted);font-size:.85rem">No matches logged yet.</div>`;
+        return;
+      }
+
+      els.leaderboardList.innerHTML = list.map(item => `
+        <div class="leader-item">
+          <strong>${item.name}</strong>
+          <div style="font-size:.8rem;color:var(--muted);margin-top:2px">
+            Matches: ${item.games} | Total Score: ${item.totalScore}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // --- DOM Event Initialization ---
+    document.addEventListener("DOMContentLoaded", () => {
+      // Initialize default player fields
+      addPlayerField("Player 1");
+      addPlayerField("Player 2");
+
+      // Bind button events
+      els.addPlayerBtn.addEventListener("click", () => addPlayerField());
+      els.startGameBtn.addEventListener("click", startGame);
+      els.undoBtn.addEventListener("click", undo);
+      els.endTurnBtn.addEventListener("click", endTurn);
+      els.newGameBtn.addEventListener("click", () => {
+        els.setupPanel.classList.remove("hidden");
+        resetStateForGame();
+      });
+      els.missBtn.addEventListener("click", recordMiss);
+
+      els.nextEventBtn.addEventListener("click", () => {
+        els.eventSummaryModal.classList.add("hidden");
+        els.setupPanel.classList.remove("hidden");
+      });
+
+      els.multButtons().forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.multiplier = Number(btn.dataset.mult);
+          updateMeta();
+        });
+      });
+
+      els.leaderboardToggle.addEventListener("click", () => {
+        els.leaderboardPanel.classList.toggle("hidden");
+        els.historyPanel.classList.toggle("hidden");
+      });
+
+      els.historyToggle.addEventListener("click", () => {
+        els.historyPanel.classList.remove("hidden");
+        els.leaderboardPanel.classList.add("hidden");
+      });
+
+      // Render initial stored views
+      renderHistory();
+      renderLeaderboard();
     });
   </script>
-
 </body>
 </html>
