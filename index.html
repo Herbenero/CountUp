@@ -182,15 +182,15 @@
 <body>
   <div class="container">
     <header>
-      <div>
-        <h1>Count Up — Multiplayer</h1>
-        <div style="color:var(--muted);font-size:.9rem">Count Up, Count Up15, Quickdraw</div>
-      </div>
-      <div class="controls-row">
-        <button id="leaderboardToggle" class="btn-alt">Leaderboard</button>
-        <button id="historyToggle" class="btn">History</button>
-      </div>
-    </header>
+  <div>
+    <h1>Count Up — Multiplayer</h1>
+    <div style="color:var(--muted);font-size:.9rem">Count Up, Count Up15, Quickdraw</div>
+  </div>
+  <div class="controls-row">
+    <a href="https://herbenero.github.io/DartKeep/" class="btn-alt" style="text-decoration:none; display:inline-block; line-height:normal;">Home</a>
+    <button id="historyToggle" class="btn">History</button>
+  </div>
+</header>
 
     <section class="panel" id="setupPanel">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
@@ -837,9 +837,7 @@
       });
 
       // Toggle side panel sections
-      els.leaderboardToggle.addEventListener("click", () => {
-        els.leaderboardPanel.classList.remove("hidden");
-        els.historyPanel.classList.add("hidden");
+             els.historyPanel.classList.add("hidden");
       });
       els.historyToggle.addEventListener("click", () => {
         els.historyPanel.classList.remove("hidden");
