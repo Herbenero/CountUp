@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Count Up (Multiplayer)</title>
-  <meta name="description" content="Count Up darts app — multiplayer, local history, leaderboard with ELO" />
+  <meta name="description" content="Count Up darts app — multiplayer session game" />
   <style>
     :root {
       --bg: #f5efe5;
@@ -184,7 +184,7 @@
     <header>
       <div>
         <h1>Count Up — Multiplayer</h1>
-        <div style="color:var(--muted);font-size:.9rem">Count Up, Count Up15, Quickdraw — local history & leaderboard</div>
+        <div style="color:var(--muted);font-size:.9rem">Count Up, Count Up15, Quickdraw</div>
       </div>
       <div class="controls-row">
         <button id="leaderboardToggle" class="btn-alt">Leaderboard</button>
@@ -280,12 +280,12 @@
         </section>
 
         <section class="panel" id="historyPanel">
-          <strong>Match History</strong>
+          <strong>Match History (Session)</strong>
           <div class="list" id="historyList"></div>
         </section>
 
         <section class="panel hidden" id="leaderboardPanel">
-          <strong>Leaderboard</strong>
+          <strong>Leaderboard (Session)</strong>
           <div class="list" id="leaderboardList"></div>
         </section>
       </aside>
@@ -321,15 +321,15 @@
   </div>
 
   <script>
-    const STORAGE_KEYS = {
-      matches: "countup_matches_multiv1",
-      leaderboard: "countup_leaderboard_multiv1"
-    };
-
     const MODE_ROUNDS = {
       "Count Up": 8,
       "Count Up15": 15,
       "Quickdraw": 3
+    };
+
+    // In-memory storage arrays replacing localStorage
+    const sessionStore = {
+      matches: []
     };
 
     const state = {
@@ -396,18 +396,6 @@
       const tz = d.getTimezoneOffset();
       const local = new Date(d.getTime() - tz * 60000);
       return local.toISOString().slice(0, 10);
-    }
-
-    function getStorage(key, fallback) {
-      try {
-        return JSON.parse(localStorage.getItem(key)) ?? fallback;
-      } catch (e) {
-        return fallback;
-      }
-    }
-
-    function setStorage(key, value) {
-      localStorage.setItem(key, JSON.stringify(value));
     }
 
     function deepClone(obj) {
@@ -578,6 +566,9 @@
       state.totals[p] = (state.totals[p] || 0) + points;
 
       setAnnouncement(`${state.players[p]} scores ${points} (${target} x ${state.multiplier}).`, "good");
+      
+      // Revert multiplier to Single after each shot
+      state.multiplier = 1;
       advanceDart();
     }
 
@@ -592,6 +583,9 @@
       state.dartScores[p][rIndex].push(0);
 
       setAnnouncement(`${state.players[p]} misses.`, "warn");
+
+      // Revert multiplier to Single after each shot
+      state.multiplier = 1;
       advanceDart();
     }
 
@@ -695,7 +689,6 @@
     }
 
     function saveCompletedMatch() {
-      const matches = getStorage(STORAGE_KEYS.matches, []);
       const match = {
         id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
         date: state.selectedDate || todayStr(),
@@ -714,12 +707,10 @@
         })()
       };
 
-      matches.unshift(match);
-      setStorage(STORAGE_KEYS.matches, matches);
+      sessionStore.matches.unshift(match);
       return match;
     }
 
-    // VERTICAL SCOREBOARD RENDER FUNCTION
     function renderScoreboard() {
       els.scoreHead.innerHTML = `
         <tr>
@@ -771,9 +762,9 @@
     }
 
     function renderHistory() {
-      const matches = getStorage(STORAGE_KEYS.matches, []);
+      const matches = sessionStore.matches;
       if (!matches.length) {
-        els.historyList.innerHTML = `<div style="color:var(--muted);font-size:.85rem">No history recorded yet.</div>`;
+        els.historyList.innerHTML = `<div style="color:var(--muted);font-size:.85rem">No history recorded in this session yet.</div>`;
         return;
       }
 
@@ -789,7 +780,7 @@
     }
 
     function renderLeaderboard() {
-      const matches = getStorage(STORAGE_KEYS.matches, []);
+      const matches = sessionStore.matches;
       const playerStats = {};
 
       matches.forEach(m => {
@@ -803,7 +794,7 @@
       const list = Object.values(playerStats).sort((a, b) => b.totalScore - a.totalScore);
 
       if (!list.length) {
-        els.leaderboardList.innerHTML = `<div style="color:var(--muted);font-size:.85rem">No matches logged yet.</div>`;
+        els.leaderboardList.innerHTML = `<div style="color:var(--muted);font-size:.85rem">No matches logged in this session yet.</div>`;
         return;
       }
 
