@@ -750,25 +750,25 @@
     }
 
     function renderFinalBoard() {
-      els.finalHead.innerHTML = `<tr><th>Rank</th><th>Player</th><th>Total Score</th><th>PPR</th><th>First 9 Avg</th></tr>`;
+  els.finalHead.innerHTML = `<tr><th>Rank</th><th>Player</th><th>Total Score</th><th>PPR</th><th>First 9 Avg</th></tr>`;
+  
+  const ranked = state.players.map((name, idx) => ({
+    name,
+    total: state.totals[idx] || 0,
+    ppr: calcPointsPerRound(state.totals[idx] || 0, state.totalRounds),
+    first9: calcFirst9Average(state.dartScores[idx])
+  })).sort((a, b) => b.total - a.total);
 
-      const ranked = state.players.map((name, idx) => ({
-        name,
-        total: state.totals[idx] || 0,
-        ppr: calcPointsPerRound(state.totals[idx] || 0, state.totalRounds),
-        first9: calcFirst9Average(state.dartScores[idx])
-      })).sort((a, b) => b.total - a.total);
-
-      els.finalBody.innerHTML = ranked.map((item, idx) => `
-        <tr>
-          <td>${idx + 1}</td>
-          <td>${item.name}</td>
-          <td class="total">${item.total}</td>
-          <td>${item.ppr}</td>
-          <td>${item.first9}</td>
-        </tr>
-      `).join("");
-    }
+  els.finalBody.innerHTML = ranked.map((item, idx) => `
+    <tr>
+      <td>${idx + 1}</td>
+      <td>${item.name}</td>
+      <td class="total">${item.total}</td>
+      <td>${item.ppr}</td>
+      <td>${item.first9}</td>
+    </tr>
+  `).join("");
+}
 
     function renderHistory() {
       const matches = getStorage(STORAGE_KEYS.matches, []);
