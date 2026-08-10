@@ -25,46 +25,127 @@
       padding: 18px;
     }
     .container { max-width: 1200px; margin: 0 auto; }
-    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
     h1 { margin: 0; font-size: 1.6rem; }
     .controls-row { display: flex; gap: 8px; flex-wrap: wrap; }
-    .panel { background: var(--paper); padding: 14px; border-radius: var(--radius); box-shadow: 0 6px 18px rgba(0,0,0,.06); }
+    .panel {
+      background: var(--paper);
+      padding: 14px;
+      border-radius: var(--radius);
+      box-shadow: 0 6px 18px rgba(0,0,0,.06);
+    }
     .player-list { display: grid; gap: 8px; margin-top: 8px; }
     .player-row { display: flex; gap: 8px; }
-    input[type="text"] { padding: 8px; border-radius: 8px; border: 1px solid #ddd; flex: 1; }
-    button { padding: 8px 12px; border-radius: 8px; border: 0; background: #eee; cursor: pointer; }
+    input[type="text"] {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      flex: 1;
+    }
+    button {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 0;
+      background: #eee;
+      cursor: pointer;
+    }
     .btn-primary { background: linear-gradient(135deg, var(--accent), #d96f47); color: white; }
     .btn-alt { background: #1e5b6d; color: white; }
     .btn-warn { background: linear-gradient(135deg, #8f2d2d, #b34343); color: white; }
-    .game-grid { display: grid; grid-template-columns: 1fr 420px; gap: 16px; margin-top: 18px; }
-    .meta-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 12px; }
-    .meta { background: #fff; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #eee; }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 16px;
+      margin-top: 18px;
+    }
+    .meta-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .meta {
+      background: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid #eee;
+    }
     .meta .k { font-size: .75rem; color: var(--muted); text-transform: uppercase; }
     .meta .v { font-weight: 800; font-size: 1.25rem; }
+
     .mult-row { display: flex; gap: 8px; margin-bottom: 12px; }
-    .mult-btn { padding: 10px; border-radius: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
+    .mult-btn {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      background: #fff;
+      cursor: pointer;
+    }
     .mult-btn.active { outline: 3px solid rgba(30, 91, 109, .12); }
-    .targets { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-    .target-btn { padding: 14px; border-radius: 8px; background: #fff; border: 1px solid #ddd; font-weight: 800; cursor: pointer; }
-    .target-btn.bull { background: linear-gradient(180deg, #fff6c9, #f7c65f); color: #5a3a10; }
+
+    .targets {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .target-btn {
+      padding: 14px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #ddd;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .target-btn.bull {
+      background: linear-gradient(180deg, #fff6c9, #f7c65f);
+      color: #5a3a10;
+    }
+
     .actions { display: flex; gap: 8px; margin-top: 12px; }
-    .announce { margin-top: 12px; padding: 10px; border-radius: 8px; background: #fff; border: 1px solid #eee; min-height: 44px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    .announce {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #eee;
+      min-height: 44px;
+    }
+
+    .table-wrap {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-top: 8px;
+    }
+    table { width: 100%; border-collapse: collapse; }
     th, td { padding: 8px; border: 1px solid #eee; text-align: center; }
-    th { background: #fafafa; font-size: .8rem; color: var(--muted); }
+    th { background: #fafafa; font-size: .8rem; color: var(--muted); position: sticky; top: 0; }
     td.total { font-weight: 900; }
+
     .side-panel { display: flex; flex-direction: column; gap: 12px; }
     .list { max-height: 420px; overflow: auto; padding-right: 6px; }
-    .history-item, .leader-item { padding: 8px; border-radius: 8px; background: #fff; border: 1px solid #eee; margin-bottom: 8px; }
+
+    .history-item, .leader-item {
+      padding: 8px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #eee;
+      margin-bottom: 8px;
+    }
     .hidden { display: none !important; }
 
     /* Event Summary Modal Styles */
     .modal {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background: rgba(0, 0, 0, 0.65);
       display: flex;
       justify-content: center;
@@ -122,7 +203,9 @@
           <button id="removePlayerBtn" class="btn">Remove</button>
         </div>
       </div>
+
       <div class="player-list" id="playerList"></div>
+
       <div style="display:flex;gap:12px;margin-top:10px;align-items:center;flex-wrap:wrap">
         <div>
           <label style="font-size:.85rem;color:var(--muted);display:block">Board Type</label>
@@ -159,7 +242,9 @@
             <div class="meta"><div class="k">Dart</div><div class="v" id="dartLabel">—</div></div>
             <div class="meta"><div class="k">Mult</div><div class="v" id="multLabel">Single</div></div>
           </div>
+
           <div style="margin-top:6px;font-size:.9rem;color:var(--muted)">Select multiplier then target. 3 darts per turn.</div>
+
           <div class="mult-row" id="multRow" style="margin-top:10px">
             <button class="mult-btn active" data-mult="1">Single</button>
             <button class="mult-btn" data-mult="2">Double</button>
@@ -167,12 +252,15 @@
             <button class="mult-btn hidden" id="quadBtn" data-mult="4">Quad</button>
             <button id="missBtn" class="mult-btn btn-warn">Miss</button>
           </div>
+
           <div class="targets panel" id="targetGrid" style="margin-top:12px"></div>
+
           <div class="actions">
             <button id="undoBtn" class="btn">Undo</button>
             <button id="endTurnBtn" class="btn">End Turn</button>
             <button id="newGameBtn" class="btn-warn">New Game</button>
           </div>
+
           <div class="announce" id="announcement">Set players and start a match.</div>
         </section>
       </div>
@@ -183,17 +271,19 @@
             <div><strong>Scoreboard</strong><div style="font-size:.85rem;color:var(--muted)">Round totals and running score</div></div>
             <div id="scoreboardControls" style="display:flex;gap:6px"></div>
           </div>
-          <div class="table-wrap" style="margin-top:8px">
+          <div class="table-wrap">
             <table id="scoreTable">
               <thead id="scoreHead"></thead>
               <tbody id="scoreBody"></tbody>
             </table>
           </div>
         </section>
+
         <section class="panel" id="historyPanel">
           <strong>Match History</strong>
           <div class="list" id="historyList"></div>
         </section>
+
         <section class="panel hidden" id="leaderboardPanel">
           <strong>Leaderboard</strong>
           <div class="list" id="leaderboardList"></div>
@@ -231,8 +321,16 @@
   </div>
 
   <script>
-    const STORAGE_KEYS = { matches: "countup_matches_multiv1", leaderboard: "countup_leaderboard_multiv1" };
-    const MODE_ROUNDS = { "Count Up": 8, "Count Up15": 15, "Quickdraw": 3 };
+    const STORAGE_KEYS = {
+      matches: "countup_matches_multiv1",
+      leaderboard: "countup_leaderboard_multiv1"
+    };
+
+    const MODE_ROUNDS = {
+      "Count Up": 8,
+      "Count Up15": 15,
+      "Quickdraw": 3
+    };
 
     const state = {
       players: [],
@@ -301,7 +399,11 @@
     }
 
     function getStorage(key, fallback) {
-      try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch (e) { return fallback; }
+      try {
+        return JSON.parse(localStorage.getItem(key)) ?? fallback;
+      } catch (e) {
+        return fallback;
+      }
     }
 
     function setStorage(key, value) {
@@ -365,6 +467,7 @@
         btn.addEventListener("click", () => recordThrow(Number(btn.dataset.target)));
         els.targetGrid.appendChild(btn);
       }
+
       const bull = document.createElement("button");
       bull.className = "target-btn bull";
       bull.textContent = "Bull";
@@ -411,8 +514,10 @@
       state.boardType = els.boardType.value;
       state.mode = els.gameMode.value;
       state.selectedDate = els.matchDate.value || todayStr();
+
       buildTargetButtons();
       resetStateForGame();
+
       els.setupPanel.classList.add("hidden");
       document.getElementById("gamePanel").scrollIntoView({ behavior: "smooth" });
     }
@@ -423,6 +528,7 @@
       els.roundLabel.textContent = `${Math.min(state.currentRound, state.totalRounds)} / ${state.totalRounds}`;
       els.dartLabel.textContent = `${state.currentDart} / 3`;
       els.multLabel.textContent = state.multiplier === 1 ? "Single" : state.multiplier === 2 ? "Double" : state.multiplier === 3 ? "Triple" : "Quad";
+
       els.multButtons().forEach(b => b.classList.toggle("active", Number(b.dataset.mult) === state.multiplier));
     }
 
@@ -460,12 +566,14 @@
     function recordThrow(target) {
       if (!state.gameStarted || state.gameOver) return;
       saveSnapshot();
+
       const p = state.currentPlayer;
       const rIndex = state.currentRound - 1;
       const points = scoreValue(target, state.multiplier);
 
       state.dartScores[p][rIndex] = state.dartScores[p][rIndex] || [];
       state.dartScores[p][rIndex].push(points);
+
       state.roundScores[p][rIndex] = (state.roundScores[p][rIndex] || 0) + points;
       state.totals[p] = (state.totals[p] || 0) + points;
 
@@ -476,6 +584,7 @@
     function recordMiss() {
       if (!state.gameStarted || state.gameOver) return;
       saveSnapshot();
+
       const p = state.currentPlayer;
       const rIndex = state.currentRound - 1;
 
@@ -498,6 +607,7 @@
 
     function endTurn() {
       if (!state.gameStarted || state.gameOver) return;
+
       state.currentPlayer = (state.currentPlayer + 1) % state.players.length;
       if (state.currentPlayer === 0) state.currentRound += 1;
       state.currentDart = 1;
@@ -538,8 +648,8 @@
 
       const maxScore = Math.max(...state.totals);
       const winners = state.players.filter((_, i) => state.totals[i] === maxScore);
-      let summary = "";
 
+      let summary = "";
       if (state.players.length === 1) {
         summary = `${state.players[0]} finished with a total score of ${maxScore}.`;
       } else {
@@ -609,25 +719,39 @@
       return match;
     }
 
+    // VERTICAL SCOREBOARD RENDER FUNCTION
     function renderScoreboard() {
-      els.scoreHead.innerHTML = `<tr><th>Player</th>${Array.from({ length: state.totalRounds }, (_, i) => `<th>R${i + 1}</th>`).join("")}<th>Total</th></tr>`;
-      els.scoreBody.innerHTML = state.players.map((name, pIdx) => {
-        const roundsHtml = Array.from({ length: state.totalRounds }, (_, rIdx) => {
-          const isCurrent = pIdx === state.currentPlayer && rIdx === state.currentRound - 1 && !state.gameOver;
-          const val = state.roundScores[pIdx]?.[rIdx] ?? 0;
-          return `<td style="${isCurrent ? "background:#fff3d6;font-weight:bold" : ""}">${val}</td>`;
-        }).join("");
+      els.scoreHead.innerHTML = `
+        <tr>
+          <th>Round</th>
+          ${state.players.map(p => `<th>${p}</th>`).join('')}
+        </tr>
+      `;
 
-        return `<tr>
-          <td><strong>${name}</strong></td>
-          ${roundsHtml}
-          <td class="total">${state.totals[pIdx] ?? 0}</td>
-        </tr>`;
-      }).join("");
+      let rowsHtml = '';
+      for (let r = 0; r < state.totalRounds; r++) {
+        rowsHtml += `<tr><td><strong>R${r + 1}</strong></td>`;
+        state.players.forEach((_, pIdx) => {
+          const isCurrent = pIdx === state.currentPlayer && r === state.currentRound - 1 && !state.gameOver;
+          const val = state.roundScores[pIdx]?.[r] ?? 0;
+          rowsHtml += `<td style="${isCurrent ? 'background:#fff3d6;font-weight:bold' : ''}">${val}</td>`;
+        });
+        rowsHtml += `</tr>`;
+      }
+
+      rowsHtml += `
+        <tr style="border-top: 2px solid var(--ink);">
+          <td><strong>Total</strong></td>
+          ${state.players.map((_, pIdx) => `<td class="total">${state.totals[pIdx] ?? 0}</td>`).join('')}
+        </tr>
+      `;
+
+      els.scoreBody.innerHTML = rowsHtml;
     }
 
     function renderFinalBoard() {
       els.finalHead.innerHTML = `<tr><th>Rank</th><th>Player</th><th>Total Score</th><th>PPR</th><th>First 9 Avg</th></tr>`;
+
       const ranked = state.players.map((name, idx) => ({
         name,
         total: state.totals[idx] || 0,
@@ -677,6 +801,7 @@
       });
 
       const list = Object.values(playerStats).sort((a, b) => b.totalScore - a.totalScore);
+
       if (!list.length) {
         els.leaderboardList.innerHTML = `<div style="color:var(--muted);font-size:.85rem">No matches logged yet.</div>`;
         return;
@@ -708,30 +833,31 @@
         resetStateForGame();
       });
       els.missBtn.addEventListener("click", recordMiss);
-
       els.nextEventBtn.addEventListener("click", () => {
         els.eventSummaryModal.classList.add("hidden");
-        els.setupPanel.classList.remove("hidden");
       });
 
-      els.multButtons().forEach(btn => {
-        btn.addEventListener("click", () => {
-          state.multiplier = Number(btn.dataset.mult);
+      // Multiplier listeners
+      els.multButtons().forEach(b => {
+        b.addEventListener("click", () => {
+          state.multiplier = Number(b.dataset.mult);
           updateMeta();
         });
       });
 
+      // Toggle side panel sections
       els.leaderboardToggle.addEventListener("click", () => {
-        els.leaderboardPanel.classList.toggle("hidden");
-        els.historyPanel.classList.toggle("hidden");
+        els.leaderboardPanel.classList.remove("hidden");
+        els.historyPanel.classList.add("hidden");
       });
-
       els.historyToggle.addEventListener("click", () => {
         els.historyPanel.classList.remove("hidden");
         els.leaderboardPanel.classList.add("hidden");
       });
 
-      // Render initial stored views
+      // Initialize date input default value
+      els.matchDate.value = todayStr();
+
       renderHistory();
       renderLeaderboard();
     });
