@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Count Up (Multiplayer)</title>
-  <meta name="description" content="Count Up darts app — multiplayer, local history, leaderboard with ELO" />
+  <title>Count Up (Multiplayer Sync)</title>
+  <meta name="description" content="Count Up darts app — multi-device room synchronization, local history & leaderboard" />
   <style>
     :root {
       --bg: #f5efe5;
@@ -25,31 +25,97 @@
       padding: 18px;
     }
     .container { max-width: 1200px; margin: 0 auto; }
-    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
     h1 { margin: 0; font-size: 1.6rem; }
     .controls-row { display: flex; gap: 8px; flex-wrap: wrap; }
-    .panel { background: var(--paper); padding: 14px; border-radius: var(--radius); box-shadow: 0 6px 18px rgba(0,0,0,.06); }
-    #missBtn { color: #0a0000; font-weight: bold; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4); }
+    .panel {
+      background: var(--paper);
+      padding: 14px;
+      border-radius: var(--radius);
+      box-shadow: 0 6px 18px rgba(0,0,0,.06);
+    }
+    #missBtn { color: #0a0000; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
     .player-list { display: grid; gap: 8px; margin-top: 8px; }
     .player-row { display: flex; gap: 8px; }
-    input[type="text"] { padding: 8px; border-radius: 8px; border: 1px solid #ddd; flex: 1; }
-    button { padding: 8px 12px; border-radius: 8px; border: 0; background: #eee; cursor: pointer; }
+    input[type="text"], select {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    input[type="text"] { flex: 1; }
+    button {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 0;
+      background: #eee;
+      cursor: pointer;
+      font-weight: bold;
+    }
     .btn-primary { background: linear-gradient(135deg, var(--accent), #d96f47); color: white; }
     .btn-alt { background: #1e5b6d; color: white; }
     .btn-warn { background: linear-gradient(135deg, #8f2d2d, #b34343); color: white; }
-    .game-grid { display: grid; grid-template-columns: 1fr 420px; gap: 16px; margin-top: 18px; }
-    .meta-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 12px; }
-    .meta { background: #fff; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #eee; }
+    
+    .room-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: #fff;
+      padding: 12px;
+      border-radius: var(--radius);
+      margin-bottom: 14px;
+      border: 1px solid #eee;
+      flex-wrap: wrap;
+    }
+    .room-tag {
+      font-weight: 800;
+      padding: 4px 8px;
+      background: #e2f0d9;
+      color: #2e5b1e;
+      border-radius: 6px;
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 16px;
+      margin-top: 18px;
+    }
+    .meta-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .meta {
+      background: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid #eee;
+    }
     .meta .k { font-size: .75rem; color: var(--muted); text-transform: uppercase; }
     .meta .v { font-weight: 800; font-size: 1.25rem; }
     .mult-row { display: flex; gap: 8px; margin-bottom: 12px; }
     .mult-btn { padding: 10px; border-radius: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
-    .mult-btn.active { outline: 3px solid rgba(30, 91, 109, .12); }
+    .mult-btn.active { outline: 3px solid rgba(30, 91, 109, .3); background: #e0f2f1; }
     .targets { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
     .target-btn { padding: 14px; border-radius: 8px; background: #fff; border: 1px solid #ddd; font-weight: 800; cursor: pointer; }
     .target-btn.bull { background: linear-gradient(180deg, #fff6c9, #f7c65f); color: #5a3a10; }
     .actions { display: flex; gap: 8px; margin-top: 12px; }
-    .announce { margin-top: 12px; padding: 10px; border-radius: 8px; background: #fff; border: 1px solid #eee; min-height: 44px; }
+    .announce {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #eee;
+      min-height: 44px;
+    }
     .table-wrap { max-height: 400px; overflow-y: auto; margin-top: 8px; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 8px; border: 1px solid #eee; text-align: center; }
@@ -57,21 +123,19 @@
     td.total { font-weight: 900; }
     .side-panel { display: flex; flex-direction: column; gap: 12px; }
     .list { max-height: 420px; overflow: auto; padding-right: 6px; }
-    .history-item, .leader-item { padding: 8px; border-radius: 8px; background: #fff; border: 1px solid #eee; margin-bottom: 8px; }
     .hidden { display: none !important; }
+    
     .modal {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.65); display: flex; justify-content: center; align-items: center; z-index: 1000;
+      background: rgba(0, 0, 0, 0.65);
+      display: flex; justify-content: center; align-items: center; z-index: 1000;
     }
     .modal-content {
-      background: var(--paper); padding: 24px; border-radius: var(--radius); text-align: center;
-      min-width: 320px; max-width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      background: var(--paper); padding: 24px; border-radius: var(--radius);
+      text-align: center; min-width: 320px; max-width: 90%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
-    #next-event-btn {
-      margin-top: 20px; padding: 12px 24px; font-weight: bold;
-      background: linear-gradient(135deg, var(--accent), #d96f47); color: white;
-      border: none; border-radius: 8px; cursor: pointer; font-size: 1rem;
-    }
+
     @media (max-width: 980px) {
       .game-grid { grid-template-columns: 1fr; }
       .meta-strip { grid-template-columns: repeat(3, 1fr); }
@@ -83,7 +147,7 @@
     <header>
       <div>
         <h1>Count Up — Multiplayer</h1>
-        <div style="color:var(--muted);font-size:.9rem">Count Up, Count Up15, Quickdraw — local history & leaderboard</div>
+        <div style="color:var(--muted);font-size:.9rem">Multi-device cloud synced room scoring</div>
       </div>
       <div class="controls-row">
         <button id="leaderboardToggle" class="btn-alt">Leaderboard</button>
@@ -91,29 +155,45 @@
       </div>
     </header>
 
+    <!-- Room Control Bar -->
+    <div class="room-bar">
+      <div>
+        <strong>Room Status:</strong>
+        <span id="roomStatusTag" class="room-tag">Offline (Local Only)</span>
+      </div>
+      <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
+        <input type="text" id="joinRoomCodeInput" placeholder="4-Digit Code" style="width:110px; text-transform:uppercase;" />
+        <button id="joinRoomBtn" class="btn-alt">Join Room</button>
+        <button id="createRoomBtn" class="btn-primary">Host New Room</button>
+      </div>
+    </div>
+
+    <!-- Setup Panel -->
     <section class="panel" id="setupPanel">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
         <div>
           <div style="font-weight:800">Players</div>
-          <div style="color:var(--muted);font-size:.9rem">Add as many players as you like</div>
+          <div style="color:var(--muted);font-size:.9rem">Add players for this match</div>
         </div>
         <div>
           <button id="addPlayerBtn" class="btn">Add Player</button>
           <button id="removePlayerBtn" class="btn">Remove</button>
         </div>
       </div>
+      
       <div class="player-list" id="playerList"></div>
+
       <div style="display:flex;gap:12px;margin-top:10px;align-items:center;flex-wrap:wrap">
         <div>
           <label style="font-size:.85rem;color:var(--muted);display:block">Board Type</label>
-          <select id="boardType" style="padding:8px;border-radius:8px;border:1px solid #ddd">
+          <select id="boardType">
             <option value="basic">Basic Board</option>
             <option value="quad">Quad Board</option>
           </select>
         </div>
         <div>
           <label style="font-size:.85rem;color:var(--muted);display:block">Game Mode</label>
-          <select id="gameMode" style="padding:8px;border-radius:8px;border:1px solid #ddd">
+          <select id="gameMode">
             <option>Count Up</option>
             <option>Count Up15</option>
             <option>Quickdraw</option>
@@ -121,7 +201,7 @@
         </div>
         <div>
           <label style="font-size:.85rem;color:var(--muted);display:block">Match Date</label>
-          <input id="matchDate" type="date" style="padding:8px;border-radius:8px;border:1px solid #ddd" />
+          <input id="matchDate" type="date" />
         </div>
         <div style="margin-left:auto">
           <button id="startGameBtn" class="btn-primary">Start Game</button>
@@ -129,6 +209,7 @@
       </div>
     </section>
 
+    <!-- Active Game Grid -->
     <div class="game-grid" id="gameGrid">
       <div>
         <section class="panel" id="gamePanel">
@@ -139,7 +220,9 @@
             <div class="meta"><div class="k">Dart</div><div class="v" id="dartLabel">—</div></div>
             <div class="meta"><div class="k">Mult</div><div class="v" id="multLabel">Single</div></div>
           </div>
+
           <div style="margin-top:6px;font-size:.9rem;color:var(--muted)">Select multiplier then target. 3 darts per turn.</div>
+
           <div class="mult-row" id="multRow" style="margin-top:10px">
             <button class="mult-btn active" data-mult="1">Single</button>
             <button class="mult-btn" data-mult="2">Double</button>
@@ -147,20 +230,23 @@
             <button class="mult-btn hidden" id="quadBtn" data-mult="4">Quad</button>
             <button id="missBtn" class="mult-btn btn-warn">Miss</button>
           </div>
+
           <div class="targets panel" id="targetGrid" style="margin-top:12px"></div>
+
           <div class="actions">
             <button id="undoBtn" class="btn">Undo</button>
             <button id="endTurnBtn" class="btn">End Turn</button>
             <button id="newGameBtn" class="btn-warn">New Game</button>
           </div>
-          <div class="announce" id="announcement">Set players and start a match.</div>
+
+          <div class="announce" id="announcement">Create or join a room to begin.</div>
         </section>
       </div>
 
       <aside class="side-panel">
         <section class="panel">
           <div style="display:flex;justify-content:space-between;align-items:center">
-            <div><strong>Scoreboard</strong><div style="font-size:.85rem;color:var(--muted)">Round totals and running score</div></div>
+            <div><strong>Scoreboard</strong><div style="font-size:.85rem;color:var(--muted)">Live scoreboard</div></div>
             <div id="scoreboardControls" style="display:flex;gap:6px"></div>
           </div>
           <div class="table-wrap">
@@ -170,10 +256,12 @@
             </table>
           </div>
         </section>
+
         <section class="panel" id="historyPanel">
           <strong>Match History</strong>
           <div class="list" id="historyList"></div>
         </section>
+
         <section class="panel hidden" id="leaderboardPanel">
           <strong>Leaderboard</strong>
           <div class="list" id="leaderboardList"></div>
@@ -181,6 +269,7 @@
       </aside>
     </div>
 
+    <!-- Final Summary Panel -->
     <section class="panel hidden" id="finalPanel" style="margin-top:14px">
       <strong>Final Scoreboard</strong>
       <div id="finalSummary" style="color:var(--muted);margin-top:6px">Match complete</div>
@@ -190,28 +279,49 @@
       </table>
     </section>
 
+    <!-- Role / Device Selector Modal -->
+    <div id="roleModal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Joined Room <span id="modalRoomCode"></span></h2>
+        <p style="color:var(--muted)">Who is using this device?</p>
+        <div id="roleOptionsList" style="display:grid; gap:10px; margin:20px 0;"></div>
+      </div>
+    </div>
+
+    <!-- Event Summary Modal -->
     <div id="eventSummaryModal" class="modal hidden">
       <div class="modal-content">
         <h2>Event Complete!</h2>
         <h3 style="color:var(--muted);margin-top:0">Overall Leaderboard</h3>
         <table>
           <thead>
-            <tr>
-              <th>Rank</th>
-              <th>Player</th>
-              <th>Total Score</th>
-            </tr>
+            <tr><th>Rank</th><th>Player</th><th>Total Score</th></tr>
           </thead>
           <tbody id="overallLeaderboardBody"></tbody>
         </table>
-        <button id="nextEventBtn">NEXT EVENT</button>
+        <button id="nextEventBtn" class="btn-primary" style="margin-top:16px">NEXT EVENT</button>
       </div>
     </div>
   </div>
 
-  <script>
+  <!-- Firebase Integration Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // Firebase Config (countupmultivice)
+    const firebaseConfig = {
+      databaseURL: "https://countupmultivice-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
     const STORAGE_KEYS = { matches: "countup_matches_multiv1", leaderboard: "countup_leaderboard_multiv1" };
     const MODE_ROUNDS = { "Count Up": 8, "Count Up15": 15, "Quickdraw": 3 };
+
+    let currentRoomCode = null;
+    let assignedPlayerIndex = null; // null = Scoreboard/Spectator mode
 
     const state = {
       players: [],
@@ -269,37 +379,130 @@
       setupPanel: document.getElementById("setupPanel"),
       eventSummaryModal: document.getElementById("eventSummaryModal"),
       overallLeaderboardBody: document.getElementById("overallLeaderboardBody"),
-      nextEventBtn: document.getElementById("nextEventBtn")
+      nextEventBtn: document.getElementById("nextEventBtn"),
+      roomStatusTag: document.getElementById("roomStatusTag"),
+      createRoomBtn: document.getElementById("createRoomBtn"),
+      joinRoomBtn: document.getElementById("joinRoomBtn"),
+      joinRoomCodeInput: document.getElementById("joinRoomCodeInput"),
+      roleModal: document.getElementById("roleModal"),
+      modalRoomCode: document.getElementById("modalRoomCode"),
+      roleOptionsList: document.getElementById("roleOptionsList")
     };
 
     function todayStr() {
       const d = new Date();
       const tz = d.getTimezoneOffset();
-      const local = new Date(d.getTime() - tz * 60000);
-      return local.toISOString().slice(0, 10);
+      return new Date(d.getTime() - tz * 60000).toISOString().slice(0, 10);
     }
 
     function getStorage(key, fallback) {
       try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch (e) { return fallback; }
     }
-
-    function setStorage(key, value) {
-      localStorage.setItem(key, JSON.stringify(value));
-    }
-
+    function setStorage(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
     function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
 
-    function calcPointsPerRound(total, rounds) {
-      return rounds > 0 ? (total / rounds).toFixed(2) : "0.00";
+    // Cloud Sync Methods
+    function pushStateToCloud() {
+      if (!currentRoomCode) return;
+      set(ref(db, 'rooms/' + currentRoomCode + '/state'), state);
     }
 
-    function calcFirst9Average(darts) {
-      const flatDarts = (darts || []).flat().slice(0, 9);
-      if (!flatDarts.length) return "0.00";
-      const sum = flatDarts.reduce((a, b) => a + b, 0);
-      return (sum / (flatDarts.length / 3)).toFixed(2);
+    function listenToRoom(roomCode) {
+      currentRoomCode = roomCode;
+      const roomRef = ref(db, 'rooms/' + roomCode);
+      
+      onValue(roomRef, (snapshot) => {
+        const roomData = snapshot.val();
+        if (roomData && roomData.state) {
+          Object.assign(state, roomData.state);
+          
+          if (state.boardType === "quad") els.quadBtn.classList.remove("hidden");
+          else els.quadBtn.classList.add("hidden");
+
+          if (state.gameStarted) els.setupPanel.classList.add("hidden");
+
+          updateMeta();
+          renderScoreboard();
+          renderFinalBoard();
+          updateButtonLocks();
+        }
+      });
     }
 
+    function updateButtonLocks() {
+      // Allow throwing only if this device's assigned player matches the current active player turn
+      const isMyTurn = (assignedPlayerIndex !== null) && (assignedPlayerIndex === state.currentPlayer) && state.gameStarted && !state.gameOver;
+
+      const interactiveButtons = document.querySelectorAll('.target-btn, .mult-btn, #undoBtn, #endTurnBtn, #missBtn');
+      interactiveButtons.forEach(btn => {
+        btn.disabled = !isMyTurn;
+        btn.style.opacity = isMyTurn ? "1" : "0.35";
+        btn.style.pointerEvents = isMyTurn ? "auto" : "none";
+      });
+    }
+
+    // Room Hosting & Joining Handlers
+    els.createRoomBtn.addEventListener("click", () => {
+      const code = Math.floor(1000 + Math.random() * 9000).toString();
+      assignedPlayerIndex = 0; // Host defaults to Player 1
+      currentRoomCode = code;
+      
+      els.roomStatusTag.textContent = `Room Code: ${code} (Player 1 Host)`;
+      els.roomStatusTag.style.background = "#cce5ff";
+      els.roomStatusTag.style.color = "#004085";
+
+      pushStateToCloud();
+      listenToRoom(code);
+      alert(`Room Created! Share Code: ${code}`);
+    });
+
+    els.joinRoomBtn.addEventListener("click", () => {
+      const code = els.joinRoomCodeInput.value.trim().toUpperCase();
+      if (!code) return alert("Enter a valid 4-digit code");
+
+      const roomRef = ref(db, 'rooms/' + code);
+      onValue(roomRef, (snapshot) => {
+        const roomData = snapshot.val();
+        if (!roomData) {
+          alert("Room not found!");
+          return;
+        }
+        currentRoomCode = code;
+        els.modalRoomCode.textContent = code;
+        els.roleOptionsList.innerHTML = "";
+
+        // Add choices for assigned players
+        const playerList = roomData.state?.players || ["Player 1", "Player 2"];
+        playerList.forEach((name, idx) => {
+          const btn = document.createElement("button");
+          btn.className = "btn-alt";
+          btn.textContent = `Control: ${name}`;
+          btn.addEventListener("click", () => {
+            assignedPlayerIndex = idx;
+            els.roomStatusTag.textContent = `Room: ${code} (${name})`;
+            els.roleModal.classList.add("hidden");
+            listenToRoom(code);
+          });
+          els.roleOptionsList.appendChild(btn);
+        });
+
+        // Add option for Spectator / Scoreboard Mode
+        const specBtn = document.createElement("button");
+        specBtn.className = "btn-primary";
+        specBtn.textContent = "TV / Scoreboard Only (View Only)";
+        specBtn.addEventListener("click", () => {
+          assignedPlayerIndex = null;
+          els.roomStatusTag.textContent = `Room: ${code} (Scoreboard Mode)`;
+          els.roleModal.classList.add("hidden");
+          listenToRoom(code);
+        });
+        els.roleOptionsList.appendChild(specBtn);
+
+        els.roleModal.classList.remove("hidden");
+      }, { onlyOnce: true });
+    });
+
+    // Player Inputs & Setup Controls
     function addPlayerField(name = "") {
       const index = els.playerList.children.length + 1;
       const row = document.createElement("div");
@@ -325,6 +528,14 @@
         btn.style.visibility = els.playerList.children.length <= 1 ? "hidden" : "visible";
       });
     }
+
+    els.addPlayerBtn.addEventListener("click", () => addPlayerField());
+    els.removePlayerBtn.addEventListener("click", () => {
+      if (els.playerList.children.length > 1) {
+        els.playerList.lastElementChild.remove();
+        refreshPlayerPlaceholders();
+      }
+    });
 
     function getPlayerNamesFromInputs() {
       return Array.from(els.playerList.querySelectorAll("input"))
@@ -364,11 +575,8 @@
       state.historyStack = [];
       state.finalSaved = false;
 
-      if (state.boardType === "quad") {
-        els.quadBtn.classList.remove("hidden");
-      } else {
-        els.quadBtn.classList.add("hidden");
-      }
+      if (state.boardType === "quad") els.quadBtn.classList.remove("hidden");
+      else els.quadBtn.classList.add("hidden");
 
       setAnnouncement(`${state.players[0]} to throw first.`);
       updateMeta();
@@ -376,9 +584,11 @@
       renderFinalBoard();
       els.finalPanel.classList.add("hidden");
       els.eventSummaryModal.classList.add("hidden");
+
+      pushStateToCloud();
     }
 
-    function startGame() {
+    els.startGameBtn.addEventListener("click", () => {
       const names = getPlayerNamesFromInputs();
       if (names.length < 1) {
         setAnnouncement("Enter at least one player name to start.", "warn");
@@ -388,12 +598,12 @@
       state.boardType = els.boardType.value;
       state.mode = els.gameMode.value;
       state.selectedDate = els.matchDate.value || todayStr();
-
+      
       buildTargetButtons();
       resetStateForGame();
       els.setupPanel.classList.add("hidden");
       document.getElementById("gamePanel").scrollIntoView({ behavior: "smooth" });
-    }
+    });
 
     function updateMeta() {
       els.currentPlayer.textContent = state.players[state.currentPlayer] ?? "—";
@@ -411,21 +621,13 @@
 
     function saveSnapshot() {
       state.historyStack.push(deepClone({
-        players: state.players,
-        mode: state.mode,
-        boardType: state.boardType,
-        totalRounds: state.totalRounds,
-        currentPlayer: state.currentPlayer,
-        currentRound: state.currentRound,
-        currentDart: state.currentDart,
-        multiplier: state.multiplier,
-        gameStarted: state.gameStarted,
-        gameOver: state.gameOver,
-        totals: state.totals,
-        roundScores: state.roundScores,
-        dartScores: state.dartScores,
-        finalSaved: state.finalSaved,
-        selectedDate: state.selectedDate
+        players: state.players, mode: state.mode, boardType: state.boardType,
+        totalRounds: state.totalRounds, currentPlayer: state.currentPlayer,
+        currentRound: state.currentRound, currentDart: state.currentDart,
+        multiplier: state.multiplier, gameStarted: state.gameStarted,
+        gameOver: state.gameOver, totals: state.totals,
+        roundScores: state.roundScores, dartScores: state.dartScores,
+        finalSaved: state.finalSaved, selectedDate: state.selectedDate
       }));
       if (state.historyStack.length > 200) state.historyStack.shift();
     }
@@ -446,7 +648,6 @@
       state.roundScores[p][rIndex] = (state.roundScores[p][rIndex] || 0) + points;
       state.totals[p] = (state.totals[p] || 0) + points;
       setAnnouncement(`${state.players[p]} scores ${points} (${target} x ${state.multiplier}).`, "good");
-      
       state.multiplier = 1;
       advanceDart();
     }
@@ -459,10 +660,11 @@
       state.dartScores[p][rIndex] = state.dartScores[p][rIndex] || [];
       state.dartScores[p][rIndex].push(0);
       setAnnouncement(`${state.players[p]} misses.`, "warn");
-      
       state.multiplier = 1;
       advanceDart();
     }
+
+    els.missBtn.addEventListener("click", recordMiss);
 
     function advanceDart() {
       if (state.currentDart >= 3) {
@@ -471,6 +673,7 @@
         state.currentDart += 1;
         updateMeta();
         renderScoreboard();
+        pushStateToCloud();
       }
     }
 
@@ -482,287 +685,78 @@
       state.multiplier = 1;
       updateMeta();
       renderScoreboard();
-
       if (state.currentRound > state.totalRounds) {
         finishGame();
       } else {
         setAnnouncement(`${state.players[state.currentPlayer]}'s turn.`);
       }
+      pushStateToCloud();
     }
 
-    function undo() {
+    els.endTurnBtn.addEventListener("click", endTurn);
+
+    els.undoBtn.addEventListener("click", () => {
       if (!state.historyStack.length) return;
       const prev = state.historyStack.pop();
       Object.assign(state, deepClone(prev));
-      if (state.boardType === "quad") {
-        els.quadBtn.classList.remove("hidden");
-      } else {
-        els.quadBtn.classList.add("hidden");
-      }
       updateMeta();
       renderScoreboard();
       renderFinalBoard();
       setAnnouncement("Last action undone.");
-    }
-    function updateButtonLocks() {
-  // Is it my turn to throw?
-  const isMyTurn = (myAssignedPlayer !== null) && (myAssignedPlayer === state.currentPlayer);
+      pushStateToCloud();
+    });
 
-  // Select all throw buttons, multipliers, undo, etc.
-  const interactiveButtons = document.querySelectorAll('.target-btn, .mult-btn, #undoBtn, #endTurnBtn');
-
-  interactiveButtons.forEach(btn => {
-    if (isMyTurn) {
-      btn.disabled = false;
-      btn.style.opacity = "1";
-      btn.style.pointerEvents = "auto";
-    } else {
-      btn.disabled = true;
-      btn.style.opacity = "0.4"; // Gray out non-active buttons
-      btn.style.pointerEvents = "none";
-    }
-  });
-}
+    // Multipliers Setup
+    els.multRow.addEventListener("click", (e) => {
+      const btn = e.target.closest(".mult-btn[data-mult]");
+      if (!btn) return;
+      state.multiplier = Number(btn.dataset.mult);
+      updateMeta();
+    });
 
     function finishGame() {
       state.gameOver = true;
       renderScoreboard();
       renderFinalBoard();
       els.finalPanel.classList.remove("hidden");
-
       const maxScore = Math.max(...state.totals);
       const winners = state.players.filter((_, i) => state.totals[i] === maxScore);
-      let summary = "";
-      if (state.players.length === 1) {
-        summary = `${state.players[0]} finished with a total score of ${maxScore}.`;
-      } else {
-        summary = winners.length === 1 ? `${winners[0]} wins with ${maxScore}.` : `Tie at ${maxScore} between ${winners.join(", ")}.`;
-      }
-      els.finalSummary.textContent = `${state.mode}${state.boardType === "quad" ? " (Quad Board)" : ""} • ${summary}`;
+      let summary = winners.length === 1 ? `${winners[0]} wins with ${maxScore}.` : `Tie at ${maxScore} between ${winners.join(", ")}.`;
+      els.finalSummary.textContent = summary;
       setAnnouncement(summary, "good");
-
-      if (!state.finalSaved) {
-        saveCompletedMatch();
-        state.finalSaved = true;
-      }
-      renderHistory();
-      renderLeaderboard();
-      showOverallLeaderboardModal();
+      pushStateToCloud();
     }
 
-    function renderOverallLeaderboard() {
-      els.overallLeaderboardBody.innerHTML = "";
-      const standings = state.players
-        .map((name, i) => ({ name: name, score: state.totals[i] }))
-        .sort((a, b) => b.score - a.score);
-
-      standings.forEach((player, idx) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${idx + 1}</td>
-          <td>${player.name}</td>
-          <td><strong>${player.score}</strong></td>
-        `;
-        els.overallLeaderboardBody.appendChild(row);
-      });
-    }
-
-    function showOverallLeaderboardModal() {
-      renderOverallLeaderboard();
-      els.eventSummaryModal.classList.remove("hidden");
-    }
-
-    function saveCompletedMatch() {
-      const matches = getStorage(STORAGE_KEYS.matches, []);
-      const match = {
-        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-        date: state.selectedDate || todayStr(),
-        mode: `${state.mode}${state.boardType === "quad" ? " (Quad)" : ""}`,
-        rounds: state.totalRounds,
-        players: state.players.slice(),
-        totals: state.totals.slice(),
-        roundScores: deepClone(state.roundScores),
-        first9: state.dartScores.map(ds => calcFirst9Average(ds)),
-        ppr: state.totals.map(t => calcPointsPerRound(t, state.totalRounds)),
-        winner: (() => {
-          if (state.players.length === 1) return state.players[0];
-          const maxScore = Math.max(...state.totals);
-          const winners = state.players.filter((_, i) => state.totals[i] === maxScore);
-          return winners.length === 1 ? winners[0] : "Tie";
-        })()
-      };
-      matches.unshift(match);
-      setStorage(STORAGE_KEYS.matches, matches);
-      return match;
-    }
-
+    // Scoreboard Tables
     function renderScoreboard() {
-      els.scoreHead.innerHTML = `
-        <tr>
-          <th>Round</th>
-          ${state.players.map(p => `<th>${p}</th>`).join('')}
-        </tr>
-      `;
-      let rowsHtml = '';
+      if (!state.players.length) return;
+      els.scoreHead.innerHTML = `<tr><th>Round</th>${state.players.map(p => `<th>${p}</th>`).join('')}</tr>`;
+      let bodyHtml = "";
       for (let r = 0; r < state.totalRounds; r++) {
-        rowsHtml += `<tr><td><strong>R${r + 1}</strong></td>`;
-        state.players.forEach((_, pIdx) => {
-          const isCurrent = pIdx === state.currentPlayer && r === state.currentRound - 1 && !state.gameOver;
-          const val = state.roundScores[pIdx]?.[r] ?? 0;
-          rowsHtml += `<td style="${isCurrent ? 'background:#fff3d6;font-weight:bold' : ''}">${val}</td>`;
-        });
-        rowsHtml += `</tr>`;
+        bodyHtml += `<tr><td>R${r + 1}</td>${state.players.map((_, pIdx) => `<td>${state.roundScores[pIdx]?.[r] ?? 0}</td>`).join('')}</tr>`;
       }
-      rowsHtml += `
-        <tr style="border-top: 2px solid var(--ink);">
-          <td><strong>Total</strong></td>
-          ${state.players.map((_, pIdx) => `<td class="total">${state.totals[pIdx] ?? 0}</td>`).join('')}
-        </tr>
-      `;
-      els.scoreBody.innerHTML = rowsHtml;
+      bodyHtml += `<tr style="background:#f0f0f0"><td class="total">Total</td>${state.totals.map(t => `<td class="total">${t}</td>`).join('')}</tr>`;
+      els.scoreBody.innerHTML = bodyHtml;
     }
 
     function renderFinalBoard() {
-      els.finalHead.innerHTML = `<tr><th>Rank</th><th>Player</th><th>Total Score</th><th>PPR</th><th>First 9 Avg</th></tr>`;
-      const ranked = state.players.map((name, idx) => ({
-        name,
-        total: state.totals[idx] || 0,
-        ppr: calcPointsPerRound(state.totals[idx] || 0, state.totalRounds),
-        first9: calcFirst9Average(state.dartScores[idx])
-      })).sort((a, b) => b.total - a.total);
-
-      els.finalBody.innerHTML = ranked.map((item, idx) => `
-        <tr>
-          <td>${idx + 1}</td>
-          <td>${item.name}</td>
-          <td class="total">${item.total}</td>
-          <td>${item.ppr}</td>
-          <td>${item.first9}</td>
-        </tr>
-      `).join("");
+      if (!state.players.length) return;
+      els.finalHead.innerHTML = `<tr><th>Player</th><th>Total Score</th></tr>`;
+      els.finalBody.innerHTML = state.players.map((p, i) => `<tr><td>${p}</td><td><strong>${state.totals[i]}</strong></td></tr>`).join('');
     }
 
-    function renderHistory() {
-      const matches = getStorage(STORAGE_KEYS.matches, []);
-      if (!matches.length) {
-        els.historyList.innerHTML = `<div style="color:var(--muted);font-size:.85rem">No history recorded yet.</div>`;
-        return;
-      }
-      els.historyList.innerHTML = matches.map(m => `
-        <div class="history-item">
-          <div style="font-size:.8rem;color:var(--muted)">${m.date} • ${m.mode}</div>
-          <div style="font-weight:bold;margin-top:2px">Winner: ${m.winner}</div>
-          <div style="font-size:.85rem;margin-top:4px">
-            ${m.players.map((p, i) => `${p}: ${m.totals[i]}`).join(" | ")}
-          </div>
-        </div>
-      `).join("");
-    }
-
-    function renderLeaderboard() {
-      const matches = getStorage(STORAGE_KEYS.matches, []);
-      const playerStats = {};
-      matches.forEach(m => {
-        m.players.forEach((p, idx) => {
-          if (!playerStats[p]) playerStats[p] = { name: p, games: 0, totalScore: 0 };
-          playerStats[p].games += 1;
-          playerStats[p].totalScore += m.totals[idx] || 0;
-        });
-      });
-      const list = Object.values(playerStats).sort((a, b) => b.totalScore - a.totalScore);
-      if (!list.length) {
-        els.leaderboardList.innerHTML = `<div style="color:var(--muted);font-size:.85rem">No matches logged yet.</div>`;
-        return;
-      }
-      els.leaderboardList.innerHTML = list.map(item => `
-        <div class="leader-item">
-          <strong>${item.name}</strong>
-          <div style="font-size:.8rem;color:var(--muted);margin-top:2px">
-            Matches: ${item.games} | Total Score: ${item.totalScore}
-          </div>
-        </div>
-      `).join("");
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      addPlayerField("Player 1");
-      addPlayerField("Player 2");
-
-      els.addPlayerBtn.addEventListener("click", () => addPlayerField());
-      els.startGameBtn.addEventListener("click", startGame);
-      els.undoBtn.addEventListener("click", undo);
-      els.endTurnBtn.addEventListener("click", endTurn);
-      els.missBtn.addEventListener("click", recordMiss);
-      els.newGameBtn.addEventListener("click", () => {
-        els.setupPanel.classList.remove("hidden");
-        els.finalPanel.classList.add("hidden");
-      });
-
-      els.multRow.addEventListener("click", (e) => {
-        const btn = e.target.closest(".mult-btn[data-mult]");
-        if (!btn) return;
-        state.multiplier = Number(btn.dataset.mult);
-        updateMeta();
-      });
-
-      els.historyToggle.addEventListener("click", () => {
-        els.historyPanel.classList.remove("hidden");
-        els.leaderboardPanel.classList.add("hidden");
-      });
-      els.leaderboardToggle.addEventListener("click", () => {
-        els.leaderboardPanel.classList.remove("hidden");
-        els.historyPanel.classList.add("hidden");
-      });
-
-      els.nextEventBtn.addEventListener("click", () => {
-        els.eventSummaryModal.classList.add("hidden");
-      });
-
-      els.matchDate.value = todayStr();
-      buildTargetButtons();
-      renderHistory();
-      renderLeaderboard();
+    els.newGameBtn.addEventListener("click", () => {
+      els.setupPanel.classList.remove("hidden");
+      state.gameStarted = false;
+      pushStateToCloud();
     });
-    <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-  const firebaseConfig = {
-    // Paste your Firebase config object here
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  let roomCode = null;
-  let myAssignedPlayer = null; // null = spectator/scoreboard, 0 = Player 1, 1 = Player 2
-
-  // Sync state to Firebase whenever a dart/throw is recorded
-  window.syncToCloud = function() {
-    if (!roomCode) return;
-    set(ref(db, 'rooms/' + roomCode), state);
-  };
-
-  // Join room and listen for real-time updates
-  window.joinRoom = function(code, assignedPlayerIndex = null) {
-    roomCode = code;
-    myAssignedPlayer = assignedPlayerIndex;
-
-    const roomRef = ref(db, 'rooms/' + roomCode);
-    onValue(roomRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        // Overwrite local state with incoming data from cloud
-        Object.assign(state, data);
-        
-        // Re-render UI
-        updateMeta();
-        renderScoreboard();
-        updateButtonLocks(); // Lock/unlock buttons based on turn
-      }
-    });
-  };
-</script>
+    // Initialize Default View
+    els.matchDate.value = todayStr();
+    addPlayerField("Player 1");
+    addPlayerField("Player 2");
+    buildTargetButtons();
+    updateButtonLocks();
   </script>
 </body>
 </html>
