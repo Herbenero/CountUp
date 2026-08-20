@@ -504,6 +504,25 @@
       renderFinalBoard();
       setAnnouncement("Last action undone.");
     }
+    function updateButtonLocks() {
+  // Is it my turn to throw?
+  const isMyTurn = (myAssignedPlayer !== null) && (myAssignedPlayer === state.currentPlayer);
+
+  // Select all throw buttons, multipliers, undo, etc.
+  const interactiveButtons = document.querySelectorAll('.target-btn, .mult-btn, #undoBtn, #endTurnBtn');
+
+  interactiveButtons.forEach(btn => {
+    if (isMyTurn) {
+      btn.disabled = false;
+      btn.style.opacity = "1";
+      btn.style.pointerEvents = "auto";
+    } else {
+      btn.disabled = true;
+      btn.style.opacity = "0.4"; // Gray out non-active buttons
+      btn.style.pointerEvents = "none";
+    }
+  });
+}
 
     function finishGame() {
       state.gameOver = true;
@@ -704,6 +723,46 @@
       renderHistory();
       renderLeaderboard();
     });
+    <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+  const firebaseConfig = {
+    // Paste your Firebase config object here
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  let roomCode = null;
+  let myAssignedPlayer = null; // null = spectator/scoreboard, 0 = Player 1, 1 = Player 2
+
+  // Sync state to Firebase whenever a dart/throw is recorded
+  window.syncToCloud = function() {
+    if (!roomCode) return;
+    set(ref(db, 'rooms/' + roomCode), state);
+  };
+
+  // Join room and listen for real-time updates
+  window.joinRoom = function(code, assignedPlayerIndex = null) {
+    roomCode = code;
+    myAssignedPlayer = assignedPlayerIndex;
+
+    const roomRef = ref(db, 'rooms/' + roomCode);
+    onValue(roomRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        // Overwrite local state with incoming data from cloud
+        Object.assign(state, data);
+        
+        // Re-render UI
+        updateMeta();
+        renderScoreboard();
+        updateButtonLocks(); // Lock/unlock buttons based on turn
+      }
+    });
+  };
+</script>
   </script>
 </body>
 </html>
