@@ -517,9 +517,43 @@
         }
 
         function showOverallLeaderboardModal() {
-            renderOverallLeaderboard(); 
-            els.eventSummaryModal.classList.remove("hidden");
-        }
+    renderOverallLeaderboard();
+    
+    // Check if the copy button already exists to avoid duplicates
+    let leagueBtn = document.getElementById("copyLeagueResultsBtn");
+    if (!leagueBtn) {
+        leagueBtn = document.createElement("button");
+        leagueBtn.id = "copyLeagueResultsBtn";
+        leagueBtn.className = "btn-alt";
+        leagueBtn.style.cssText = "margin-top: 15px; width: 100%; padding: 12px; font-weight: bold;";
+        leagueBtn.textContent = "📋 Copy Results for Hellcastle League";
+        
+        leagueBtn.addEventListener("click", () => {
+            // Format match data nicely for quick pasting into the league form
+            let report = `Event: ${state.mode}${state.boardType === "quad" ? " (Quad)" : ""}\n`;
+            report += `Date: ${state.selectedDate}\n`;
+            
+            state.players.forEach((p, idx) => {
+                const score = state.totals[idx] || 0;
+                const ppr = calcPointsPerRound(score, state.totalRounds);
+                report += `${p}: ${score} pts (PPR: ${ppr})\n`;
+            });
+            
+            navigator.clipboard.writeText(report).then(() => {
+                leagueBtn.textContent = "✅ Copied to Clipboard!";
+                setTimeout(() => {
+                    leagueBtn.textContent = "📋 Copy Results for Hellcastle League";
+                }, 2500);
+            });
+        });
+        
+        // Append it inside the modal content box right above or below the NEXT EVENT button
+        const modalContent = document.querySelector("#eventSummaryModal .modal-content");
+        modalContent.appendChild(leagueBtn);
+    }
+
+    els.eventSummaryModal.classList.remove("hidden");
+}
 
         function saveCompletedMatch() {
             const matches = getStorage(STORAGE_KEYS.matches, []); 
