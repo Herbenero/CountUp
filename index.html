@@ -528,10 +528,11 @@
         leagueBtn.style.cssText = "margin-top: 15px; width: 100%; padding: 12px; font-weight: bold;";
         leagueBtn.textContent = "📋 Copy Results for Hellcastle League";
         
-        leagueBtn.addEventListener("click", () => {
-            // Format match data nicely for quick pasting into the league form
-            let report = `Event: ${state.mode}${state.boardType === "quad" ? " (Quad)" : ""}\n`;
-            report += `Date: ${state.selectedDate}\n`;
+       leagueBtn.addEventListener("click", () => {
+            // Format match data nicely for quick copy/pasting or structured logs
+            let report = `--- HELLCASTLE LEAGUE MATCH REPORT ---\n`;
+            report += `Event: ${state.mode}${state.boardType === "quad" ? " (Quad)" : ""}\n`;
+            report += `Date: ${state.selectedDate}\n\n`;
             
             state.players.forEach((p, idx) => {
                 const score = state.totals[idx] || 0;
@@ -540,7 +541,7 @@
             });
             
             navigator.clipboard.writeText(report).then(() => {
-                leagueBtn.textContent = "✅ Copied to Clipboard!";
+                leagueBtn.textContent = "✅ Copied Match Report!";
                 setTimeout(() => {
                     leagueBtn.textContent = "📋 Copy Results for Hellcastle League";
                 }, 2500);
