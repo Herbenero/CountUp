@@ -516,20 +516,22 @@
             });
         }
 
-        function showOverallLeaderboardModal() {
+       function showOverallLeaderboardModal() {
     renderOverallLeaderboard();
     
-    // Check if the copy button already exists to avoid duplicates
-    let leagueBtn = document.getElementById("copyLeagueResultsBtn");
-    if (!leagueBtn) {
-        leagueBtn = document.createElement("button");
-        leagueBtn.id = "copyLeagueResultsBtn";
-        leagueBtn.className = "btn-alt";
-        leagueBtn.style.cssText = "margin-top: 15px; width: 100%; padding: 12px; font-weight: bold;";
-        leagueBtn.textContent = "📋 Copy Results for Hellcastle League";
+    // Container for our custom league buttons
+    let buttonContainer = document.getElementById("leagueButtonContainer");
+    if (!buttonContainer) {
+        buttonContainer = document.createElement("div");
+        buttonContainer.id = "leagueButtonContainer";
+        buttonContainer.style.cssText = "display: flex; flex-direction: column; gap: 8px; margin-top: 15px;";
         
-       leagueBtn.addEventListener("click", () => {
-            // Format match data nicely for quick copy/pasting or structured logs
+        // 1. Copy Report Button
+        const copyBtn = document.createElement("button");
+        copyBtn.className = "btn-alt";
+        copyBtn.style.cssText = "width: 100%; padding: 10px; font-weight: bold;";
+        copyBtn.textContent = "📋 Copy Results for Hellcastle League";
+        copyBtn.addEventListener("click", () => {
             let report = `--- HELLCASTLE LEAGUE MATCH REPORT ---\n`;
             report += `Event: ${state.mode}${state.boardType === "quad" ? " (Quad)" : ""}\n`;
             report += `Date: ${state.selectedDate}\n\n`;
@@ -541,21 +543,45 @@
             });
             
             navigator.clipboard.writeText(report).then(() => {
-                leagueBtn.textContent = "✅ Copied Match Report!";
-                setTimeout(() => {
-                    leagueBtn.textContent = "📋 Copy Results for Hellcastle League";
-                }, 2500);
+                copyBtn.textContent = "✅ Copied Match Report!";
+                setTimeout(() => { copyBtn.textContent = "📋 Copy Results for Hellcastle League"; }, 2500);
             });
         });
-        
-        // Append it inside the modal content box right above or below the NEXT EVENT button
+
+        // 2. Direct Auto-Fill & Jump Button
+        const sendBtn = document.createElement("button");
+        sendBtn.className = "btn-primary";
+        sendBtn.style.cssText = "width: 100%; padding: 10px; font-weight: bold;";
+        sendBtn.textContent = "🚀 Send to League Form";
+        sendBtn.addEventListener("click", () => {
+            // Package the match payload
+            const leaguePayload = {
+                event: state.mode,
+                date: state.selectedDate,
+                players: state.players.map((p, idx) => ({
+                    name: p,
+                    score: state.totals[idx] || 0,
+                    ppr: calcPointsPerRound(state.totals[idx] || 0, state.totalRounds)
+                }))
+            };
+
+            // Save to localStorage so your league page can pick it up
+            localStorage.setItem("haalis_pending_match", JSON.stringify(leaguePayload));
+
+            // Open or focus your league page (update URL if hosted elsewhere)
+            window.location.href = "https://herbenero.github.io/Hockeydarts2/#experience";
+        });
+
+        buttonContainer.appendChild(copyBtn);
+        buttonContainer.appendChild(sendBtn);
+
+        // Append container into the modal content box
         const modalContent = document.querySelector("#eventSummaryModal .modal-content");
-        modalContent.appendChild(leagueBtn);
+        modalContent.appendChild(buttonContainer);
     }
 
     els.eventSummaryModal.classList.remove("hidden");
 }
-
         function saveCompletedMatch() {
             const matches = getStorage(STORAGE_KEYS.matches, []); 
             const match = {
