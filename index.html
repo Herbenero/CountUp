@@ -516,17 +516,30 @@
             });
         }
 
-      function showOverallLeaderboardModal() {
+     function showOverallLeaderboardModal() {
     renderOverallLeaderboard();
     
-    // Container for our custom league buttons
     let buttonContainer = document.getElementById("leagueButtonContainer");
     if (!buttonContainer) {
         buttonContainer = document.createElement("div");
         buttonContainer.id = "leagueButtonContainer";
-        buttonContainer.style.cssText = "display: flex; flex-direction: column; gap: 8px; margin-top: 15px;";
+        buttonContainer.style.cssText = "display: flex; flex-direction: column; gap: 10px; margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;";
         
-        // 1. Copy Report Button
+        // League Selector Dropdown
+        const leagueSelect = document.createElement("select");
+        leagueSelect.id = "targetLeagueSelect";
+        leagueSelect.className = "form-control";
+        leagueSelect.style.cssText = "width: 100%; padding: 8px; background: #2a2a2a; color: white; border: 1px solid var(--border-color); border-radius: 4px;";
+        leagueSelect.innerHTML = `
+            <option value="Royal Couple">Royal Couple</option>
+            <option value="Papal 1">Papal 1</option>
+            <option value="Hellcastle Archery League">Hellcastle Archery League</option>
+        `;
+        // Try to load the last used league preference if saved locally
+        const lastLeague = localStorage.getItem("haalis_selected_target_league");
+        if (lastLeague) leagueSelect.value = lastLeague;
+
+        // Copy Report Button
         const copyBtn = document.createElement("button");
         copyBtn.className = "btn-alt";
         copyBtn.style.cssText = "width: 100%; padding: 10px; font-weight: bold;";
@@ -548,14 +561,17 @@
             });
         });
 
-        // 2. Direct Auto-Fill & Jump Button
+        // Direct Auto-Fill & Jump Button
         const sendBtn = document.createElement("button");
         sendBtn.className = "btn-primary";
         sendBtn.style.cssText = "width: 100%; padding: 10px; font-weight: bold;";
         sendBtn.textContent = "🚀 Send to League Form";
         sendBtn.addEventListener("click", () => {
-            // Package the match payload matching your league fields
+            const chosenLeague = leagueSelect.value;
+            localStorage.setItem("haalis_selected_target_league", chosenLeague);
+
             const leaguePayload = {
+                leagueName: chosenLeague,
                 event: state.mode,
                 date: state.selectedDate,
                 players: state.players.map((p, idx) => ({
@@ -565,17 +581,14 @@
                 }))
             };
 
-            // Save to localStorage so your league page can pick it up
             localStorage.setItem("haalis_pending_match", JSON.stringify(leaguePayload));
-
-            // Jump straight to your league page
-            window.location.href = "https://herbenero.github.io/Hockeydarts2/#experience";
+            window.location.href = "https://herbenero.github.io/Hellcastle-League/";
         });
 
+        buttonContainer.appendChild(leagueSelect);
         buttonContainer.appendChild(copyBtn);
         buttonContainer.appendChild(sendBtn);
 
-        // Append container into the modal content box
         const modalContent = document.querySelector("#eventSummaryModal .modal-content");
         modalContent.appendChild(buttonContainer);
     }
