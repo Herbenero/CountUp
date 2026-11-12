@@ -516,7 +516,7 @@
             });
         }
 
-       function showOverallLeaderboardModal() {
+      function showOverallLeaderboardModal() {
     renderOverallLeaderboard();
     
     // Container for our custom league buttons
@@ -554,7 +554,7 @@
         sendBtn.style.cssText = "width: 100%; padding: 10px; font-weight: bold;";
         sendBtn.textContent = "🚀 Send to League Form";
         sendBtn.addEventListener("click", () => {
-            // Package the match payload
+            // Package the match payload matching your league fields
             const leaguePayload = {
                 event: state.mode,
                 date: state.selectedDate,
@@ -568,7 +568,7 @@
             // Save to localStorage so your league page can pick it up
             localStorage.setItem("haalis_pending_match", JSON.stringify(leaguePayload));
 
-            // Open or focus your league page (update URL if hosted elsewhere)
+            // Jump straight to your league page
             window.location.href = "https://herbenero.github.io/Hockeydarts2/#experience";
         });
 
