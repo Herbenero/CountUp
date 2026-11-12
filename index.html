@@ -516,53 +516,7 @@
             });
         }
 
-     function showOverallLeaderboardModal() {
-    renderOverallLeaderboard();
-    
-    let buttonContainer = document.getElementById("leagueButtonContainer");
-    if (!buttonContainer) {
-        buttonContainer = document.createElement("div");
-        buttonContainer.id = "leagueButtonContainer";
-        buttonContainer.style.cssText = "display: flex; flex-direction: column; gap: 10px; margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;";
-        
-        // League Selector Dropdown
-        const leagueSelect = document.createElement("select");
-        leagueSelect.id = "targetLeagueSelect";
-        leagueSelect.className = "form-control";
-        leagueSelect.style.cssText = "width: 100%; padding: 8px; background: #2a2a2a; color: white; border: 1px solid var(--border-color); border-radius: 4px;";
-        leagueSelect.innerHTML = `
-            <option value="Royal Couple">Royal Couple</option>
-            <option value="Papal 1">Papal 1</option>
-            <option value="Hellcastle Archery League">Hellcastle Archery League</option>
-        `;
-        // Try to load the last used league preference if saved locally
-        const lastLeague = localStorage.getItem("haalis_selected_target_league");
-        if (lastLeague) leagueSelect.value = lastLeague;
-
-        // Copy Report Button
-        const copyBtn = document.createElement("button");
-        copyBtn.className = "btn-alt";
-        copyBtn.style.cssText = "width: 100%; padding: 10px; font-weight: bold;";
-        copyBtn.textContent = "📋 Copy Results for Hellcastle League";
-        copyBtn.addEventListener("click", () => {
-            let report = `--- HELLCASTLE LEAGUE MATCH REPORT ---\n`;
-            report += `Event: ${state.mode}${state.boardType === "quad" ? " (Quad)" : ""}\n`;
-            report += `Date: ${state.selectedDate}\n\n`;
-            
-            state.players.forEach((p, idx) => {
-                const score = state.totals[idx] || 0;
-                const ppr = calcPointsPerRound(score, state.totalRounds);
-                report += `${p}: ${score} pts (PPR: ${ppr})\n`;
-            });
-            
-            navigator.clipboard.writeText(report).then(() => {
-                copyBtn.textContent = "✅ Copied Match Report!";
-                setTimeout(() => { copyBtn.textContent = "📋 Copy Results for Hellcastle League"; }, 2500);
-            });
-        });
-
-        // Direct Auto-Fill & Jump Button
-        const sendBtn = document.createElement("button");
+    const sendBtn = document.createElement("button");
         sendBtn.className = "btn-primary";
         sendBtn.style.cssText = "width: 100%; padding: 10px; font-weight: bold;";
         sendBtn.textContent = "🚀 Send to League Form";
@@ -584,17 +538,6 @@
             localStorage.setItem("haalis_pending_match", JSON.stringify(leaguePayload));
             window.location.href = "https://herbenero.github.io/Hellcastle-League/";
         });
-
-        buttonContainer.appendChild(leagueSelect);
-        buttonContainer.appendChild(copyBtn);
-        buttonContainer.appendChild(sendBtn);
-
-        const modalContent = document.querySelector("#eventSummaryModal .modal-content");
-        modalContent.appendChild(buttonContainer);
-    }
-
-    els.eventSummaryModal.classList.remove("hidden");
-}
         function saveCompletedMatch() {
             const matches = getStorage(STORAGE_KEYS.matches, []); 
             const match = {
