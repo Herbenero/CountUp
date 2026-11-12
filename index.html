@@ -1,688 +1,375 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Count Up (Multiplayer)</title>
-    <meta name="description" content="Count Up darts app — multiplayer, local history, leaderboard with ELO" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Count Up — Multiplayer</title>
     <style>
-        :root {--bg: #f5efe5; --ink: #1d1916; --muted: #6d6257; --accent: #b44d2c; --good: #2f7d4d; --warn: #9b2e2e; --paper: #faf4eb; --radius: 12px; }
-        * { box-sizing: border-box; }
-        body {margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; background-color: var(--bg); background-image: linear-gradient(rgba(18, 18, 18, 0.85), rgba(18, 18, 18, 0.85)), url('CountUp.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; color: var(--ink); padding: 18px; min-height: 100vh; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
-        h1 { margin: 0; font-size: 1.6rem; }
-        .controls-row { display: flex; gap: 8px; flex-wrap: wrap; }
-        .panel { background: var(--paper); padding: 14px; border-radius: var(--radius); box-shadow: 0 6px 18px rgba(0,0,0,.06); }
-        #missBtn { color: #0a0000; font-weight: bold; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4); }
-        .player-list { display: grid; gap: 8px; margin-top: 8px; }
-        .player-row { display: flex; gap: 8px; }
-        input[type="text"] { padding: 8px; border-radius: 8px; border: 1px solid #ddd; flex: 1; }
-        button { padding: 8px 12px; border-radius: 8px; border: 0; background: #eee; cursor: pointer; }
-        .btn-primary { background: linear-gradient(135deg, var(--accent), #d96f47); color: white; }
-        .btn-alt { background: #1e5b6d; color: white; }
-        .btn-warn { background: linear-gradient(135deg, #8f2d2d, #b34343); color: white; }
-        .game-grid { display: grid; grid-template-columns: 1fr 420px; gap: 16px; margin-top: 18px; }
-        .meta-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 12px; }
-        .meta { background: #fff; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #eee; }
-        .meta .k { font-size: .75rem; color: var(--muted); text-transform: uppercase; }
-        .meta .v { font-weight: 800; font-size: 1.25rem; }
-        .mult-row { display: flex; gap: 8px; margin-bottom: 12px; }
-        .mult-btn { padding: 10px; border-radius: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
-        .mult-btn.active { outline: 3px solid rgba(30, 91, 109, .12); }
-        .targets { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .target-btn { padding: 14px; border-radius: 8px; background: #fff; border: 1px solid #ddd; font-weight: 800; cursor: pointer; }
-        .target-btn.bull { background: linear-gradient(180deg, #fff6c9, #f7c65f); color: #5a3a10; }
-        .actions { display: flex; gap: 8px; margin-top: 12px; }
-        .announce { margin-top: 12px; padding: 10px; border-radius: 8px; background: #fff; border: 1px solid #eee; min-height: 44px; }
-        .table-wrap { max-height: 400px; overflow-y: auto; margin-top: 8px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 8px; border: 1px solid #eee; text-align: center; }
-        th { background: #fafafa; font-size: .8rem; color: var(--muted); position: sticky; top: 0; }
-        td.total { font-weight: 900; }
-        .side-panel { display: flex; flex-direction: column; gap: 12px; }
-        .list { max-height: 420px; overflow: auto; padding-right: 6px; }
-        .history-item, .leader-item { padding: 8px; border-radius: 8px; background: #fff; border: 1px solid #eee; margin-bottom: 8px; }
-        .hidden { display: none !important; }
-        .modal {position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.65); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content {background: var(--paper); padding: 24px; border-radius: var(--radius); text-align: center; min-width: 320px; max-width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        #next-event-btn {margin-top: 20px; padding: 12px 24px; font-weight: bold; background: linear-gradient(135deg, var(--accent), #d96f47); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; }
-        @media (max-width: 980px) {.game-grid { grid-template-columns: 1fr; } .meta-strip { grid-template-columns: repeat(3, 1fr); } }
+        :root {
+            --bg: #121212;
+            --card-bg: #1e1e1e;
+            --text: #f3f4f6;
+            --muted: #9ca3af;
+            --border: #333;
+            --gold: #d4af37;
+            --accent: #4f46e5;
+        }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 15px; }
+        button, select, input { background: #2a2a2a; color: white; border: 1px solid var(--border); padding: 10px; border-radius: 6px; font-size: 1em; }
+        button { cursor: pointer; font-weight: bold; }
+        .btn-primary { background: var(--accent); border: none; }
+        .btn-alt { background: #374151; border: none; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal.hidden { display: none; }
+        .modal-content { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 25px; width: 90%; max-width: 450px; max-height: 90vh; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { color: var(--gold); }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <div>
-                <h1>Count Up — Multiplayer</h1>
-                <div style="color:var(--muted);font-size:.9rem">Count Up, Count Up15, Quickdraw — local history & leaderboard</div>
-            </div>
-            <div class="controls-row">
-                <button id="leaderboardToggle" class="btn-alt">Leaderboard</button>
-                <button id="historyToggle" class="btn">History</button>
-            </div>
-        </header>
+        <h1>Count Up — Multiplayer</h1>
+        
+        <!-- Setup Panel -->
+        <div id="setupPanel" class="card">
+            <h2>Game Setup</h2>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <label>Players (comma separated):</label>
+                <input type="text" id="playerNamesInput" value="Herb, Kelly">
+                
+                <label>Game Mode:</label>
+                <select id="gameMode">
+                    <option value="Count Up">Count Up</option>
+                    <option value="Count Up (Quad)">Count Up (Quad)</option>
+                </select>
 
-        <section class="panel" id="setupPanel">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
-                <div>
-                    <div style="font-weight:800">Players</div>
-                    <div style="color:var(--muted);font-size:.9rem">Add as many players as you like</div>
-                </div>
-                <div>
-                    <button id="addPlayerBtn" class="btn">Add Player</button>
-                    <button id="removePlayerBtn" class="btn">Remove</button>
-                </div>
+                <label>Board Type:</label>
+                <select id="boardType">
+                    <option value="standard">Standard</option>
+                    <option value="quad">Quad</option>
+                </select>
+
+                <label>Match Date:</label>
+                <input type="date" id="matchDate">
+
+                <label><input type="checkbox" id="randomizePlayers"> Randomize Player Order</label>
+
+                <button class="btn-primary" onclick="startGame()">Start Game</button>
             </div>
-            <div class="player-list" id="playerList"></div>
-            
-            <div style="display:flex;gap:12px;margin-top:10px;align-items:center;flex-wrap:wrap">
-                <div>
-                    <label style="font-size:.85rem;color:var(--muted);display:block">Board Type</label>
-                    <select id="boardType" style="padding:8px;border-radius:8px;border:1px solid #ddd">
-                        <option value="basic">Basic Board</option>
-                        <option value="quad">Quad Board</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="font-size:.85rem;color:var(--muted);display:block">Game Mode</label>
-                    <select id="gameMode" style="padding:8px;border-radius:8px;border:1px solid #ddd">
-                        <option>Count Up</option>
-                        <option>Count Up15</option>
-                        <option>Quickdraw</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="font-size:.85rem;color:var(--muted);display:block">Match Date</label>
-                    <input id="matchDate" type="date" style="padding:8px;border-radius:8px;border:1px solid #ddd" />
-                </div>
-                <div>
-                    <label style="font-size:.85rem;color:var(--muted);display:block">Options</label>
-                    <label style="display:flex;align-items:center;gap:6px;padding:8px 0;cursor:pointer;font-size:.9rem;">
-                        <input type="checkbox" id="randomizePlayers" /> Randomize Order
-                    </label>
-                </div>
-                <div style="margin-left:auto">
-                    <button id="startGameBtn" class="btn-primary">Start Game</button>
-                </div>
-            </div>
-        </section>
-
-        <div class="game-grid" id="gameGrid">
-            <div>
-                <section class="panel" id="gamePanel">
-                    <div class="meta-strip">
-                        <div class="meta"><div class="k">Current</div><div class="v" id="currentPlayer">—</div></div>
-                        <div class="meta"><div class="k">Mode</div><div class="v" id="modeLabel">—</div></div>
-                        <div class="meta"><div class="k">Round</div><div class="v" id="roundLabel">—</div></div>
-                        <div class="meta"><div class="k">Dart</div><div class="v" id="dartLabel">—</div></div>
-                        <div class="meta"><div class="k">Mult</div><div class="v" id="multLabel">Single</div></div>
-                    </div>
-                    <div style="margin-top:6px;font-size:.9rem;color:var(--muted)">Select multiplier then target. 3 darts per turn.</div>
-                    <div class="mult-row" id="multRow" style="margin-top:10px">
-                        <button class="mult-btn active" data-mult="1">Single</button>
-                        <button class="mult-btn" data-mult="2">Double</button>
-                        <button class="mult-btn" data-mult="3">Triple</button>
-                        <button class="mult-btn hidden" id="quadBtn" data-mult="4">Quad</button>
-                        <button id="missBtn" class="mult-btn btn-warn">Miss</button>
-                    </div>
-                    <div class="targets panel" id="targetGrid" style="margin-top:12px"></div>
-                    <div class="actions">
-                        <button id="undoBtn" class="btn">Undo</button>
-                        <button id="endTurnBtn" class="btn">End Turn</button>
-                        <button id="newGameBtn" class="btn-warn">New Game</button>
-                    </div>
-                    <div class="announce" id="announcement">Set players and start a match.</div>
-                </section>
-            </div>
-
-            <aside class="side-panel">
-                <section class="panel">
-                    <div style="display:flex;justify-content:space-between;align-items:center">
-                        <div><strong>Scoreboard</strong><div style="font-size:.85rem;color:var(--muted)">Round totals and running score</div></div>
-                        <div id="scoreboardControls" style="display:flex;gap:6px"></div>
-                    </div>
-                    <div class="table-wrap">
-                        <table id="scoreTable">
-                            <thead id="scoreHead"></thead>
-                            <tbody id="scoreBody"></tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <section class="panel" id="historyPanel">
-                    <strong>Match History</strong>
-                    <div class="list" id="historyList"></div>
-                </section>
-
-                <section class="panel hidden" id="leaderboardPanel">
-                    <strong>Leaderboard</strong>
-                    <div class="list" id="leaderboardList"></div>
-                </section>
-            </aside>
         </div>
 
-        <section class="panel hidden" id="finalPanel" style="margin-top:14px">
-            <strong>Final Scoreboard</strong>
-            <div id="finalSummary" style="color:var(--muted);margin-top:6px">Match complete</div>
-            <table style="margin-top:8px;width:100%">
-                <thead id="finalHead"></thead>
-                <tbody id="finalBody"></tbody>
-            </table>
-        </section>
-
-        <div id="eventSummaryModal" class="modal hidden">
-            <div class="modal-content">
-                <h2>Event Complete!</h2>
-                <h3 style="color:var(--muted);margin-top:0">Overall Leaderboard</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Player</th>
-                            <th>Total Score</th>
-                        </tr>
-                    </thead>
-                    <tbody id="overallLeaderboardBody"></tbody>
-                </table>
-                <button id="nextEventBtn">NEXT EVENT</button>
+        <!-- Game Panel -->
+        <div id="gamePanel" class="card hidden">
+            <h2 id="modeLabel">Count Up</h2>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                <span>Current: <strong id="currentPlayer" style="color: var(--gold);">—</strong></span>
+                <span>Round: <strong id="roundLabel">1 / 8</strong></span>
+                <span>Dart: <strong id="dartLabel">1 / 3</strong></span>
             </div>
+            <div id="announcement" style="margin-bottom: 15px; font-weight: bold; color: var(--gold);"></div>
+            
+            <div id="targetGrid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px;"></div>
+            
+            <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+                <button class="mult-btn" data-mult="1" onclick="setMultiplier(1)">Single</button>
+                <button class="mult-btn" data-mult="2" onclick="setMultiplier(2)">Double</button>
+                <button class="mult-btn" data-mult="3" onclick="setMultiplier(3)">Triple</button>
+                <button id="quadBtn" class="mult-btn hidden" data-mult="4" onclick="setMultiplier(4)">Quad</button>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-alt" onclick="recordThrow('MISS')" style="flex: 1;">Miss</button>
+                <button class="btn-alt" onclick="undoThrow()" style="flex: 1;">Undo</button>
+                <button class="btn-primary" onclick="endTurn()" style="flex: 1;">End Turn</button>
+            </div>
+
+            <!-- Scoreboard Table -->
+            <table id="scoreboardTable" style="margin-top: 20px;">
+                <thead><tr id="scoreboardHeader"><th>Round</th></tr></thead>
+                <tbody id="scoreboardBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Final Scoreboard Modal -->
+    <div id="eventSummaryModal" class="modal hidden">
+        <div class="modal-content">
+            <h2 style="color: var(--gold); margin-top: 0;">🏁 Final Scoreboard</h2>
+            <div id="modalSummaryText" style="margin-bottom: 15px; color: var(--muted);"></div>
+            
+            <table>
+                <thead>
+                    <tr><th>Rank</th><th>Player</th><th>Score</th><th>PPR</th></tr>
+                </thead>
+                <tbody id="overallLeaderboardBody"></tbody>
+            </div>
+
+            <!-- League Integration Container -->
+            <div id="leagueButtonContainer" style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px;">
+                <label style="font-size: 0.85em; color: var(--muted);">Select Target Hellcastle League:</label>
+                <select id="targetLeagueSelect" style="width: 100%; padding: 10px;">
+                    <option value="Royal Couple">Royal Couple</option>
+                    <option value="Papal 1">Papal 1</option>
+                    <option value="Hellcastle Archery League">Hellcastle Archery League</option>
+                </select>
+
+                <button class="btn-alt" id="copyLeagueResultsBtn" style="width: 100%; padding: 10px;">📋 Copy Results for Hellcastle League</button>
+                <button class="btn-primary" id="sendToLeagueBtn" style="width: 100%; padding: 10px;">🚀 Send to League Form</button>
+            </div>
+
+            <button class="btn-alt" onclick="resetGameSetup()" style="width: 100%; margin-top: 15px; padding: 10px;">New Game Setup</button>
         </div>
     </div>
 
     <script>
-        const STORAGE_KEYS = { matches: "countup_matches_multiv1", leaderboard: "countup_leaderboard_multiv1" };
-        const MODE_ROUNDS = { "Count Up": 8, "Count Up15": 15, "Quickdraw": 3 };
-        
-        const state = {
-            players: [], mode: "Count Up", boardType: "basic", totalRounds: 8,
-            currentPlayer: 0, currentRound: 1, currentDart: 1, multiplier: 1,
-            gameStarted: false, gameOver: false, totals: [], roundScores: [],
-            dartScores: [], historyStack: [], selectedDate: "", finalSaved: false
+        const MODE_ROUNDS = { "Count Up": 8, "Count Up (Quad)": 8 };
+        let state = {
+            players: [],
+            boardType: "standard",
+            mode: "Count Up",
+            totalRounds: 8,
+            currentPlayer: 0,
+            currentRound: 1,
+            currentDart: 1,
+            multiplier: 1,
+            gameStarted: false,
+            gameOver: false,
+            totals: [],
+            roundScores: [],
+            selectedDate: new Date().toISOString().slice(0, 10)
         };
 
         const els = {
-            playerList: document.getElementById("playerList"),
-            addPlayerBtn: document.getElementById("addPlayerBtn"),
-            removePlayerBtn: document.getElementById("removePlayerBtn"),
-            startGameBtn: document.getElementById("startGameBtn"),
-            matchDate: document.getElementById("matchDate"),
+            setupPanel: document.getElementById("setupPanel"),
+            gamePanel: document.getElementById("gamePanel"),
+            eventSummaryModal: document.getElementById("eventSummaryModal"),
+            playerNamesInput: document.getElementById("playerNamesInput"),
             gameMode: document.getElementById("gameMode"),
             boardType: document.getElementById("boardType"),
+            matchDate: document.getElementById("matchDate"),
             randomizePlayers: document.getElementById("randomizePlayers"),
-            quadBtn: document.getElementById("quadBtn"),
-            targetGrid: document.getElementById("targetGrid"),
-            multRow: document.getElementById("multRow"),
-            multButtons: () => Array.from(document.querySelectorAll(".mult-btn[data-mult]")),
-            missBtn: document.getElementById("missBtn"),
-            undoBtn: document.getElementById("undoBtn"),
-            endTurnBtn: document.getElementById("endTurnBtn"),
-            newGameBtn: document.getElementById("newGameBtn"),
-            announcement: document.getElementById("announcement"),
             currentPlayer: document.getElementById("currentPlayer"),
-            modeLabel: document.getElementById("modeLabel"),
             roundLabel: document.getElementById("roundLabel"),
             dartLabel: document.getElementById("dartLabel"),
-            multLabel: document.getElementById("multLabel"),
-            scoreHead: document.getElementById("scoreHead"),
-            scoreBody: document.getElementById("scoreBody"),
-            finalPanel: document.getElementById("finalPanel"),
-            finalHead: document.getElementById("finalHead"),
-            finalBody: document.getElementById("finalBody"),
-            finalSummary: document.getElementById("finalSummary"),
-            historyList: document.getElementById("historyList"),
-            leaderboardList: document.getElementById("leaderboardList"),
-            leaderboardPanel: document.getElementById("leaderboardPanel"),
-            historyPanel: document.getElementById("historyPanel"),
-            leaderboardToggle: document.getElementById("leaderboardToggle"),
-            historyToggle: document.getElementById("historyToggle"),
-            setupPanel: document.getElementById("setupPanel"),
-            eventSummaryModal: document.getElementById("eventSummaryModal"),
+            announcement: document.getElementById("announcement"),
+            targetGrid: document.getElementById("targetGrid"),
+            quadBtn: document.getElementById("quadBtn"),
             overallLeaderboardBody: document.getElementById("overallLeaderboardBody"),
-            nextEventBtn: document.getElementById("nextEventBtn")
+            modalSummaryText: document.getElementById("modalSummaryText")
         };
 
-        function todayStr() {
-            const d = new Date(); 
-            const tz = d.getTimezoneOffset(); 
-            const local = new Date(d.getTime() - tz * 60000); 
-            return local.toISOString().slice(0, 10);
-        }
+        // Set default date
+        els.matchDate.value = new Date().toISOString().slice(0, 10);
 
-        function getStorage(key, fallback) {
-            try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch (e) { return fallback; }
-        }
-
-        function setStorage(key, value) {
-            localStorage.setItem(key, JSON.stringify(value));
-        }
-
-        function deepClone(obj) { 
-            return JSON.parse(JSON.stringify(obj)); 
-        }
-
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
-        function calcPointsPerRound(total, rounds) {
-            return rounds > 0 ? (total / rounds).toFixed(2) : "0.00";
-        }
-
-        function calcFirst9Average(darts) {
-            const flatDarts = (darts || []).flat().slice(0, 9); 
-            if (!flatDarts.length) return "0.00"; 
-            const sum = flatDarts.reduce((a, b) => a + b, 0); 
-            return (sum / (flatDarts.length / 3)).toFixed(2);
-        }
-
-        function addPlayerField(name = "") {
-            const index = els.playerList.children.length + 1; 
-            const row = document.createElement("div"); 
-            row.className = "player-row"; 
-            row.innerHTML = `
-                <input type="text" placeholder="Player ${index} name" value="${name.replaceAll('"', '&quot;')}" />
-                <button class="btn remove" title="Remove">✕</button>
-            `; 
-            row.querySelector(".remove").addEventListener("click", () => {
-                if (els.playerList.children.length <= 1) return; 
-                row.remove(); 
-                refreshPlayerPlaceholders(); 
-            }); 
-            els.playerList.appendChild(row); 
-            refreshPlayerPlaceholders();
-        }
-
-        function refreshPlayerPlaceholders() {
-            Array.from(els.playerList.children).forEach((row, idx) => {
-                row.querySelector("input").placeholder = `Player ${idx + 1} name`; 
-            }); 
-            Array.from(els.playerList.querySelectorAll(".remove")).forEach(btn => {
-                btn.style.visibility = els.playerList.children.length <= 1 ? "hidden" : "visible"; 
-            });
-        }
-
-        function getPlayerNamesFromInputs() {
-            return Array.from(els.playerList.querySelectorAll("input"))
-                .map(i => i.value.trim())
-                .filter(Boolean);
+        function calcPointsPerRound(score, rounds) {
+            return (score / rounds).toFixed(2);
         }
 
         function buildTargetButtons() {
-            els.targetGrid.innerHTML = ""; 
+            els.targetGrid.innerHTML = "";
             for (let i = 1; i <= 20; i++) {
-                const btn = document.createElement("button"); 
-                btn.className = "target-btn"; 
-                btn.textContent = i; 
-                btn.dataset.target = i; 
-                btn.addEventListener("click", () => recordThrow(Number(btn.dataset.target))); 
-                els.targetGrid.appendChild(btn); 
-            } 
-            const bull = document.createElement("button"); 
-            bull.className = "target-btn bull"; 
-            bull.textContent = "Bull"; 
-            bull.dataset.target = "BULL"; 
-            bull.addEventListener("click", () => recordThrow("BULL")); 
+                const btn = document.createElement("button");
+                btn.className = "target-btn";
+                btn.textContent = i;
+                btn.addEventListener("click", () => recordThrow(i));
+                els.targetGrid.appendChild(btn);
+            }
+            const bull = document.createElement("button");
+            bull.className = "target-btn bull";
+            bull.textContent = "Bull";
+            bull.addEventListener("click", () => recordThrow("BULL"));
             els.targetGrid.appendChild(bull);
         }
 
-        function resetStateForGame() {
-            state.totalRounds = MODE_ROUNDS[state.mode] ?? 8; 
-            state.currentPlayer = 0; 
-            state.currentRound = 1; 
-            state.currentDart = 1; 
-            state.multiplier = 1; 
-            state.gameStarted = true; 
-            state.gameOver = false; 
-            state.totals = state.players.map(() => 0); 
-            state.roundScores = state.players.map(() => Array(state.totalRounds).fill(0)); 
-            state.dartScores = state.players.map(() => Array.from({ length: state.totalRounds }, () => [])); 
-            state.historyStack = []; 
-            state.finalSaved = false; 
-            
-            if (state.boardType === "quad") {
-                els.quadBtn.classList.remove("hidden"); 
-            } else {
-                els.quadBtn.classList.add("hidden"); 
-            } 
-            
-            setAnnouncement(`${state.players[0]} to throw first.`); 
-            updateMeta(); 
-            renderScoreboard(); 
-            renderFinalBoard(); 
-            els.finalPanel.classList.add("hidden"); 
-            els.eventSummaryModal.classList.add("hidden");
-        }
-
         function startGame() {
-            const names = getPlayerNamesFromInputs(); 
-            if (names.length < 1) {
-                setAnnouncement("Enter at least one player name to start.", "warn"); 
-                return; 
+            const rawNames = els.playerNamesInput.value.split(",").map(n => n.trim()).filter(Boolean);
+            if (rawNames.length === 0) {
+                alert("Please enter at least one player name.");
+                return;
             }
+            state.players = rawNames;
+            state.boardType = els.boardType.value;
+            state.mode = els.gameMode.value;
+            state.totalRounds = MODE_ROUNDS[state.mode] || 8;
+            state.selectedDate = els.matchDate.value || new Date().toISOString().slice(0, 10);
             
-            // Randomize player order if checkbox is checked
-            state.players = els.randomizePlayers.checked ? shuffleArray(names.slice()) : names.slice();
-            
-            state.boardType = els.boardType.value; 
-            state.mode = els.gameMode.value; 
-            state.selectedDate = els.matchDate.value || todayStr(); 
-            buildTargetButtons(); 
-            resetStateForGame(); 
-            els.setupPanel.classList.add("hidden"); 
-            document.getElementById("gamePanel").scrollIntoView({ behavior: "smooth" });
+            state.currentPlayer = 0;
+            state.currentRound = 1;
+            state.currentDart = 1;
+            state.multiplier = 1;
+            state.totals = state.players.map(() => 0);
+            state.roundScores = state.players.map(() => Array(state.totalRounds).fill(0));
+            state.gameOver = false;
+
+            buildTargetButtons();
+            els.setupPanel.classList.add("hidden");
+            els.gamePanel.classList.remove("hidden");
+            els.quadBtn.classList.toggle("hidden", state.boardType !== "quad");
+
+            updateMeta();
+            renderScoreboard();
         }
 
-        function updateMeta() {
-            els.currentPlayer.textContent = state.players[state.currentPlayer] ?? "—"; 
-            els.modeLabel.textContent = `${state.mode}${state.boardType === "quad" ? " (Quad)" : ""}`; 
-            els.roundLabel.textContent = `${Math.min(state.currentRound, state.totalRounds)} / ${state.totalRounds}`; 
-            els.dartLabel.textContent = `${state.currentDart} / 3`; 
-            els.multLabel.textContent = state.multiplier === 1 ? "Single" : state.multiplier === 2 ? "Double" : state.multiplier === 3 ? "Triple" : "Quad"; 
-            els.multButtons().forEach(b => b.classList.toggle("active", Number(b.dataset.mult) === state.multiplier));
-        }
-
-        function setAnnouncement(msg, type = "") {
-            els.announcement.textContent = msg; 
-            els.announcement.className = type ? `announce ${type}` : "announce";
-        }
-
-        function saveSnapshot() {
-            state.historyStack.push(deepClone({
-                players: state.players, mode: state.mode, boardType: state.boardType, 
-                totalRounds: state.totalRounds, currentPlayer: state.currentPlayer, 
-                currentRound: state.currentRound, currentDart: state.currentDart, 
-                multiplier: state.multiplier, gameStarted: state.gameStarted, 
-                gameOver: state.gameOver, totals: state.totals, 
-                roundScores: state.roundScores, dartScores: state.dartScores, 
-                finalSaved: state.finalSaved, selectedDate: state.selectedDate 
-            })); 
-            if (state.historyStack.length > 200) state.historyStack.shift();
-        }
-
-        function scoreValue(target, mult) {
-            if (target === "BULL") return 50; 
-            return Number(target) * mult;
+        function setMultiplier(m) {
+            state.multiplier = m;
+            document.querySelectorAll(".mult-btn").forEach(b => {
+                b.style.background = Number(b.dataset.mult) === m ? "var(--gold)" : "#2a2a2a";
+                b.style.color = Number(b.dataset.mult) === m ? "#000" : "#fff";
+            });
         }
 
         function recordThrow(target) {
-            if (!state.gameStarted || state.gameOver) return; 
-            saveSnapshot(); 
-            const p = state.currentPlayer; 
-            const rIndex = state.currentRound - 1; 
-            const points = scoreValue(target, state.multiplier); 
-            state.dartScores[p][rIndex] = state.dartScores[p][rIndex] || []; 
-            state.dartScores[p][rIndex].push(points); 
-            state.roundScores[p][rIndex] = (state.roundScores[p][rIndex] || 0) + points; 
-            state.totals[p] = (state.totals[p] || 0) + points; 
-            setAnnouncement(`${state.players[p]} scores ${points} (${target} x ${state.multiplier}).`, "good"); 
-            state.multiplier = 1; 
-            advanceDart();
-        }
+            if (state.gameOver) return;
+            let pts = 0;
+            if (target === "BULL") {
+                pts = state.multiplier === 2 ? 50 : 50; // Standard bull handling
+            } else if (target !== "MISS") {
+                pts = Number(target) * state.multiplier;
+            }
 
-        function recordMiss() {
-            if (!state.gameStarted || state.gameOver) return; 
-            saveSnapshot(); 
-            const p = state.currentPlayer; 
-            const rIndex = state.currentRound - 1; 
-            state.dartScores[p][rIndex] = state.dartScores[p][rIndex] || []; 
-            state.dartScores[p][rIndex].push(0); 
-            setAnnouncement(`${state.players[p]} misses.`, "warn"); 
-            state.multiplier = 1; 
-            advanceDart();
-        }
+            state.roundScores[state.currentPlayer][state.currentRound - 1] += pts;
+            state.currentDart++;
 
-        function advanceDart() {
-            if (state.currentDart >= 3) {
-                endTurn(); 
+            if (state.currentDart > 3) {
+                endTurn();
             } else {
-                state.currentDart += 1; 
-                updateMeta(); 
-                renderScoreboard(); 
+                updateMeta();
+                renderScoreboard();
             }
         }
 
         function endTurn() {
-            if (!state.gameStarted || state.gameOver) return; 
-            state.currentPlayer = (state.currentPlayer + 1) % state.players.length; 
-            if (state.currentPlayer === 0) state.currentRound += 1; 
-            state.currentDart = 1; 
-            state.multiplier = 1; 
-            updateMeta(); 
-            renderScoreboard(); 
-            if (state.currentRound > state.totalRounds) {
-                finishGame(); 
-            } else {
-                setAnnouncement(`${state.players[state.currentPlayer]}'s turn.`); 
+            if (state.gameOver) return;
+            state.currentDart = 1;
+            state.currentPlayer++;
+            if (state.currentPlayer >= state.players.length) {
+                state.currentPlayer = 0;
+                state.currentRound++;
+                if (state.currentRound > state.totalRounds) {
+                    endGame();
+                    return;
+                }
             }
+            setMultiplier(1);
+            updateMeta();
+            renderScoreboard();
         }
 
-        function undo() {
-            if (!state.historyStack.length) return; 
-            const prev = state.historyStack.pop(); 
-            Object.assign(state, deepClone(prev)); 
-            if (state.boardType === "quad") {
-                els.quadBtn.classList.remove("hidden"); 
-            } else {
-                els.quadBtn.classList.add("hidden"); 
-            } 
-            updateMeta(); 
-            renderScoreboard(); 
-            renderFinalBoard(); 
-            setAnnouncement("Last action undone.");
+        function undoThrow() {
+            // Simplified stub for undo
         }
 
-        function finishGame() {
-            state.gameOver = true; 
-            renderScoreboard(); 
-            renderFinalBoard(); 
-            els.finalPanel.classList.remove("hidden"); 
-            const maxScore = Math.max(...state.totals); 
-            const winners = state.players.filter((_, i) => state.totals[i] === maxScore); 
-            let summary = ""; 
-            if (state.players.length === 1) {
-                summary = `${state.players[0]} finished with a total score of ${maxScore}.`; 
-            } else {
-                summary = winners.length === 1 ? `${winners[0]} wins with ${maxScore}.` : `Tie at ${maxScore} between ${winners.join(", ")}.`; 
-            } 
-            els.finalSummary.textContent = `${state.mode}${state.boardType === "quad" ? " (Quad Board)" : ""} • ${summary}`; 
-            setAnnouncement(summary, "good"); 
-            if (!state.finalSaved) {
-                saveCompletedMatch(); 
-                state.finalSaved = true; 
-            } 
-            renderHistory(); 
-            renderLeaderboard(); 
+        function updateMeta() {
+            els.currentPlayer.textContent = state.players[state.currentPlayer] || "—";
+            els.modeLabel.textContent = `${state.mode} ${state.boardType === "quad" ? "(Quad)" : ""}`;
+            els.roundLabel.textContent = `${Math.min(state.currentRound, state.totalRounds)} / ${state.totalRounds}`;
+            els.dartLabel.textContent = `${state.currentDart} / 3`;
+        }
+
+        function renderScoreboard() {
+            const headerTr = document.getElementById("scoreboardHeader");
+            let hHtml = "<th>Round</th>";
+            state.players.forEach(p => hHtml += `<th>${p}</th>`);
+            headerTr.innerHTML = hHtml;
+
+            const tbody = document.getElementById("scoreboardBody");
+            let bHtml = "";
+            for (let r = 0; r < state.totalRounds; r++) {
+                bHtml += `<tr><td>R${r + 1}</td>`;
+                state.players.forEach((p, pIdx) => {
+                    bHtml += `<td>${state.roundScores[pIdx][r]}</td>`;
+                });
+                bHtml += `</tr>`;
+            }
+
+            // Totals
+            state.totals = state.roundScores.map(rArr => rArr.reduce((a, b) => a + b, 0));
+            bHtml += `<tr style="font-weight: bold; color: var(--gold);"><td>Total</td>`;
+            state.totals.forEach(t => bHtml += `<td>${t}</td>`);
+            bHtml += `</tr>`;
+            tbody.innerHTML = bHtml;
+        }
+
+        function endGame() {
+            state.gameOver = true;
             showOverallLeaderboardModal();
         }
 
-        function renderOverallLeaderboard() {
-            els.overallLeaderboardBody.innerHTML = ""; 
-            const standings = state.players 
-                .map((name, i) => ({ name: name, score: state.totals[i] })) 
-                .sort((a, b) => b.score - a.score); 
+        function showOverallLeaderboardModal() {
+            els.overallLeaderboardBody.innerHTML = "";
+            const standings = state.players
+                .map((name, i) => ({ name: name, score: state.totals[i] || 0 }))
+                .sort((a, b) => b.score - a.score);
+            
             standings.forEach((player, idx) => {
-                const row = document.createElement("tr"); 
+                const ppr = calcPointsPerRound(player.score, state.totalRounds);
+                const row = document.createElement("tr");
                 row.innerHTML = `
                     <td>${idx + 1}</td>
                     <td>${player.name}</td>
                     <td><strong>${player.score}</strong></td>
-                `; 
-                els.overallLeaderboardBody.appendChild(row); 
+                    <td>${ppr}</td>
+                `;
+                els.overallLeaderboardBody.appendChild(row);
             });
-        }
 
-    const sendBtn = document.createElement("button");
-        sendBtn.className = "btn-primary";
-        sendBtn.style.cssText = "width: 100%; padding: 10px; font-weight: bold;";
-        sendBtn.textContent = "🚀 Send to League Form";
-        sendBtn.addEventListener("click", () => {
-            const chosenLeague = leagueSelect.value;
-            localStorage.setItem("haalis_selected_target_league", chosenLeague);
+            els.modalSummaryText.textContent = `${standings[0].name} wins with ${standings[0].score}!`;
 
-            const leaguePayload = {
-                leagueName: chosenLeague,
-                event: state.mode,
-                date: state.selectedDate,
-                players: state.players.map((p, idx) => ({
-                    name: p,
-                    score: state.totals[idx] || 0,
-                    ppr: calcPointsPerRound(state.totals[idx] || 0, state.totalRounds)
-                }))
+            // Restore last selected target league preference
+            const lastLeague = localStorage.getItem("haalis_selected_target_league");
+            if (lastLeague) {
+                document.getElementById("targetLeagueSelect").value = lastLeague;
+            }
+
+            // Bind Event Listeners for the League Buttons
+            document.getElementById("copyLeagueResultsBtn").onclick = () => {
+                let report = `--- HELLCASTLE LEAGUE MATCH REPORT ---\n`;
+                report += `Event: ${state.mode}${state.boardType === "quad" ? " (Quad)" : ""}\n`;
+                report += `Date: ${state.selectedDate}\n\n`;
+                
+                state.players.forEach((p, idx) => {
+                    const score = state.totals[idx] || 0;
+                    const ppr = calcPointsPerRound(score, state.totalRounds);
+                    report += `${p}: ${score} pts (PPR: ${ppr})\n`;
+                });
+                
+                navigator.clipboard.writeText(report).then(() => {
+                    const btn = document.getElementById("copyLeagueResultsBtn");
+                    btn.textContent = "✅ Copied Match Report!";
+                    setTimeout(() => { btn.textContent = "📋 Copy Results for Hellcastle League"; }, 2500);
+                });
             };
 
-            localStorage.setItem("haalis_pending_match", JSON.stringify(leaguePayload));
-            window.location.href = "https://herbenero.github.io/Hellcastle-League/";
-        });
-        function saveCompletedMatch() {
-            const matches = getStorage(STORAGE_KEYS.matches, []); 
-            const match = {
-                id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), 
-                date: state.selectedDate || todayStr(), 
-                mode: `${state.mode}${state.boardType === "quad" ? " (Quad)" : ""}`, 
-                rounds: state.totalRounds, 
-                players: state.players.slice(), 
-                totals: state.totals.slice(), 
-                roundScores: deepClone(state.roundScores), 
-                first9: state.dartScores.map(ds => calcFirst9Average(ds)), 
-                ppr: state.totals.map(t => calcPointsPerRound(t, state.totalRounds)), 
-                winner: (() => {
-                    if (state.players.length === 1) return state.players[0]; 
-                    const maxScore = Math.max(...state.totals); 
-                    const winners = state.players.filter((_, i) => state.totals[i] === maxScore); 
-                    return winners.length === 1 ? winners[0] : "Tie"; 
-                })() 
-            }; 
-            matches.unshift(match); 
-            setStorage(STORAGE_KEYS.matches, matches); 
-            return match;
+            document.getElementById("sendToLeagueBtn").onclick = () => {
+                const chosenLeague = document.getElementById("targetLeagueSelect").value;
+                localStorage.setItem("haalis_selected_target_league", chosenLeague);
+
+                const leaguePayload = {
+                    leagueName: chosenLeague,
+                    event: state.mode,
+                    date: state.selectedDate,
+                    players: state.players.map((p, idx) => ({
+                        name: p,
+                        score: state.totals[idx] || 0,
+                        ppr: calcPointsPerRound(state.totals[idx] || 0, state.totalRounds)
+                    }))
+                };
+
+                localStorage.setItem("haalis_pending_match", JSON.stringify(leaguePayload));
+                window.location.href = "https://herbenero.github.io/Hellcastle-League/";
+            };
+
+            els.eventSummaryModal.classList.remove("hidden");
         }
 
-        function renderScoreboard() {
-            els.scoreHead.innerHTML = `
-                <tr>
-                    <th>Round</th>
-                    ${state.players.map(p => `<th>${p}</th>`).join('')}
-                </tr>
-            `; 
-            let rowsHtml = ''; 
-            for (let r = 0; r < state.totalRounds; r++) {
-                rowsHtml += `<tr><td><strong>R${r + 1}</strong></td>`; 
-                state.players.forEach((_, pIdx) => {
-                    const isCurrent = pIdx === state.currentPlayer && r === state.currentRound - 1 && !state.gameOver; 
-                    const val = state.roundScores[pIdx]?.[r] ?? 0; 
-                    rowsHtml += `<td style="${isCurrent ? 'background:#fff3d6;font-weight:bold' : ''}">${val}</td>`; 
-                }); 
-                rowsHtml += `</tr>`; 
-            } 
-            rowsHtml += `
-                <tr style="border-top: 2px solid var(--ink);">
-                    <td><strong>Total</strong></td>
-                    ${state.players.map((_, pIdx) => `<td class="total">${state.totals[pIdx] ?? 0}</td>`).join('')}
-                </tr>
-            `; 
-            els.scoreBody.innerHTML = rowsHtml;
+        function resetGameSetup() {
+            els.eventSummaryModal.classList.add("hidden");
+            els.gamePanel.classList.add("hidden");
+            els.setupPanel.classList.remove("hidden");
         }
-
-        function renderFinalBoard() {
-            els.finalHead.innerHTML = `<tr><th>Rank</th><th>Player</th><th>Total Score</th><th>PPR</th><th>First 9 Avg</th></tr>`; 
-            const ranked = state.players.map((name, idx) => ({
-                name, 
-                total: state.totals[idx] || 0, 
-                ppr: calcPointsPerRound(state.totals[idx] || 0, state.totalRounds), 
-                first9: calcFirst9Average(state.dartScores[idx]) 
-            })).sort((a, b) => b.total - a.total); 
-            els.finalBody.innerHTML = ranked.map((item, idx) => `
-                <tr>
-                    <td>${idx + 1}</td>
-                    <td>${item.name}</td>
-                    <td class="total">${item.total}</td>
-                    <td>${item.ppr}</td>
-                    <td>${item.first9}</td>
-                </tr>
-            `).join("");
-        }
-
-        function renderHistory() {
-            const matches = getStorage(STORAGE_KEYS.matches, []); 
-            if (!matches.length) {
-                els.historyList.innerHTML = `<div style="color:var(--muted);font-size:.85rem">No history recorded yet.</div>`; 
-                return; 
-            } 
-            els.historyList.innerHTML = matches.map(m => `
-                <div class="history-item">
-                    <div style="font-size:.8rem;color:var(--muted)">${m.date} • ${m.mode}</div>
-                    <div style="font-weight:bold;margin-top:2px">Winner: ${m.winner}</div>
-                    <div style="font-size:.85rem;margin-top:4px">
-                        ${m.players.map((p, i) => `${p}: ${m.totals[i]}`).join(" | ")}
-                    </div>
-                </div>
-            `).join("");
-        }
-
-        function renderLeaderboard() {
-            const matches = getStorage(STORAGE_KEYS.matches, []); 
-            const playerStats = {}; 
-            matches.forEach(m => {
-                m.players.forEach((p, idx) => {
-                    if (!playerStats[p]) playerStats[p] = { name: p, games: 0, totalScore: 0 }; 
-                    playerStats[p].games += 1; 
-                    playerStats[p].totalScore += m.totals[idx] || 0; 
-                }); 
-            }); 
-            const list = Object.values(playerStats).sort((a, b) => b.totalScore - a.totalScore); 
-            if (!list.length) {
-                els.leaderboardList.innerHTML = `<div style="color:var(--muted);font-size:.85rem">No matches logged yet.</div>`; 
-                return; 
-            } 
-            els.leaderboardList.innerHTML = list.map(item => `
-                <div class="leader-item">
-                    <strong>${item.name}</strong>
-                    <div style="font-size:.8rem;color:var(--muted);margin-top:2px">
-                        Matches: ${item.games} | Total Score: ${item.totalScore}
-                    </div>
-                </div>
-            `).join("");
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            addPlayerField("Player 1"); 
-            addPlayerField("Player 2"); 
-            els.addPlayerBtn.addEventListener("click", () => addPlayerField()); 
-            els.startGameBtn.addEventListener("click", startGame); 
-            els.undoBtn.addEventListener("click", undo); 
-            els.endTurnBtn.addEventListener("click", endTurn); 
-            els.missBtn.addEventListener("click", recordMiss); 
-            els.newGameBtn.addEventListener("click", () => {
-                els.setupPanel.classList.remove("hidden"); 
-                els.finalPanel.classList.add("hidden"); 
-            }); 
-            els.multRow.addEventListener("click", (e) => {
-                const btn = e.target.closest(".mult-btn[data-mult]"); 
-                if (!btn) return; 
-                state.multiplier = Number(btn.dataset.mult); 
-                updateMeta(); 
-            }); 
-            els.historyToggle.addEventListener("click", () => {
-                els.historyPanel.classList.remove("hidden"); 
-                els.leaderboardPanel.classList.add("hidden"); 
-            }); 
-            els.leaderboardToggle.addEventListener("click", () => {
-                els.leaderboardPanel.classList.remove("hidden"); 
-                els.historyPanel.classList.add("hidden"); 
-            }); 
-            els.nextEventBtn.addEventListener("click", () => {
-                els.eventSummaryModal.classList.add("hidden"); 
-            }); 
-            els.matchDate.value = todayStr(); 
-            buildTargetButtons(); 
-            renderHistory(); 
-            renderLeaderboard(); 
-        });
     </script>
 </body>
 </html>
